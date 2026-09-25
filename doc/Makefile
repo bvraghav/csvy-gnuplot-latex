@@ -82,9 +82,12 @@ BRANCH    ?= master
 
 PAGES := $(SITE)/index.html $(SITE)/REFERENCE.html \
          $(patsubst %.md,$(SITE)/%.html,$(wildcard tutorials/*.md))
-SITE_IMGS := $(addprefix $(SITE)/,$(wildcard img/*.png))
-
-site: $(PAGES) $(SITE)/site.css $(SITE_IMGS)
+# The committed images are copied, not listed as prerequisites: img/*.png are
+# targets of the rules above, so depending on them could make 'site' re-render
+# them (needing gnuplot and LaTeX, e.g. on a CI runner, where a fresh checkout's
+# timestamps are arbitrary).
+site: $(PAGES) $(SITE)/site.css
+	mkdir -p $(SITE)/img && cp -p img/*.png $(SITE)/img/
 
 # $(1): source .md; pages in a subfolder reach site.css and the nav via ../
 define pandoc_page
@@ -103,9 +106,6 @@ $(SITE)/%.html: %.md site/template.html site/links.lua
 	$(call pandoc_page,$<)
 
 $(SITE)/site.css: site/site.css
-	mkdir -p $(@D) && cp $< $@
-
-$(SITE)/img/%.png: img/%.png
 	mkdir -p $(@D) && cp $< $@
 
 clean:
