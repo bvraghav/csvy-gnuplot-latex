@@ -1,13 +1,14 @@
-# Tutorial images: img/*.png, rendered from examples/.
+# Tutorial images, img/*.png, rendered from examples/; and the static site.
 #
 #   examples/NAME.csvy     -> build/NAME.gp.tex   (the same pipeline as the top folder)
 #   examples/NAME.img.tex  -> img/NAME.png        (a LaTeX page laying out figures)
 #   examples/NAME.csvy     -> img/NAME.png        (no NAME.img.tex: the figure at natural size)
 #
-# The examples say 'template: templates/gantt.gp', exactly as in the top folder;
+# The examples say 'template: templates/gantt', exactly as in the top folder;
 # build/templates links to the real templates.
 #
 #   make          render every image in IMGS
+#   make site     build the static site into build/site/ (pandoc; see below)
 #   make clean    remove build/ (img/ is committed)
 
 ROOT    := $(abspath ..)
@@ -25,7 +26,7 @@ FIGS  := $(addprefix build/,$(CSVYS:.csvy=.gp.tex))
 
 export TEXINPUTS := $(ROOT):$(abspath examples):
 
-.PHONY: all clean
+.PHONY: all site clean
 .DELETE_ON_ERROR:
 .SECONDARY:
 
@@ -66,6 +67,46 @@ img/101-twocolumn.png: RES = 110
 # \includegraphics uses the natural-size figure as a PDF.
 build/101-compare.img.pdf: build/101-natural.img.pdf
 build/101-twocolumn.img.pdf: build/101-twocolumn-doc.img.pdf
+
+# --- Static site ----------------------------------------------------------------
+#   README.md -> build/site/index.html, REFERENCE.md, tutorials/*.md -> *.html,
+#   img/ copied.  site/links.lua rewrites .md links to .html and every other
+#   relative link (examples/, ../README.md, ...) to the file on GitHub.
+#   Preview: python3 -m http.server -d build/site
+
+PANDOC    ?= pandoc
+SITE      := build/site
+SITE_NAME ?= csvy-gnuplot-latex
+REPO_URL  ?= https://github.com/bvraghav/csvy-gnuplot-latex
+BRANCH    ?= master
+
+PAGES := $(SITE)/index.html $(SITE)/REFERENCE.html \
+         $(patsubst %.md,$(SITE)/%.html,$(wildcard tutorials/*.md))
+SITE_IMGS := $(addprefix $(SITE)/,$(wildcard img/*.png))
+
+site: $(PAGES) $(SITE)/site.css $(SITE_IMGS)
+
+# $(1): source .md; pages in a subfolder reach site.css and the nav via ../
+define pandoc_page
+	mkdir -p $(@D)
+	$(PANDOC) $(1) -f gfm -t html5 --standalone --toc --toc-depth=2 \
+	  --syntax-highlighting=none \
+	  --template=site/template.html --lua-filter=site/links.lua \
+	  -M site_name='$(SITE_NAME)' -M repo_url='$(REPO_URL)' -M branch='$(BRANCH)' \
+	  -V root='$(if $(findstring /,$(1)),../,)' -o $@
+endef
+
+$(SITE)/index.html: README.md site/template.html site/links.lua
+	$(call pandoc_page,$<)
+
+$(SITE)/%.html: %.md site/template.html site/links.lua
+	$(call pandoc_page,$<)
+
+$(SITE)/site.css: site/site.css
+	mkdir -p $(@D) && cp $< $@
+
+$(SITE)/img/%.png: img/%.png
+	mkdir -p $(@D) && cp $< $@
 
 clean:
 	rm -rf build

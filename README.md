@@ -31,7 +31,7 @@ lists only what differs from the defaults.
 - Python 3 with PyYAML
 - gnuplot 5.4+ with the `tikz` terminal (tested with 6.0)
 - GNU make
-- optional: `entr` for `make watch`
+- optional: `entr` for `make watch`; `pandoc` (3.x) for `make site`
 - LaTeX with TikZ and `gnuplot-lua-tikz.sty` (ships with gnuplot); any
   engine (tested with XeLaTeX via latexmk)
 
@@ -46,6 +46,7 @@ make distclean  # clean, and remove *.gp.tex too
 make test       # run the regression tests (see Tests)
 make watch      # rebuild on every save (needs entr); WATCH_TARGET=figs for figures only
 make docs       # render the tutorial images in doc/img/
+make site       # build the docs website into doc/build/site/ (needs pandoc)
 make DOC=paper.tex
 ```
 
@@ -146,6 +147,7 @@ the committed figures for the same reason; `make figs` updates them.
 | `gnuplotfit.sty` | `\gnuplotfit` |
 | `Makefile` | build rules, `check`, `watch`, `docs`, `clean` / `distclean` |
 | `.gitignore` | intermediates and LaTeX auxiliaries (see Version control) |
+| `.github/workflows/docs.yml` | builds the docs website and publishes it to GitHub Pages |
 | `project.csvy` | example input |
 | `test-v6.tex` | example document |
 | `test/` | regression tests: `test_inp2gp.py`, `Makefile`, `cases/`, `golden/` |

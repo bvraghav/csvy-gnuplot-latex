@@ -1,0 +1,62 @@
+# Build doc/ into a static site with pandoc (make -C doc site), check its
+# links, and publish it to GitHub Pages from master.
+# One-time setup: Settings -> Pages -> Source: GitHub Actions.
+name: docs
+
+on:
+  push:
+    branches: [master]
+    paths: [doc/**, .github/workflows/docs.yml]
+  pull_request:
+    paths: [doc/**, .github/workflows/docs.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PANDOC_VERSION: 3.10.2   # keep in step with the local pandoc
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pandoc ${{ env.PANDOC_VERSION }}
+        run: |
+          curl -sSL -o pandoc.deb \
+            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
+          sudo apt-get install -y ./pandoc.deb
+          pandoc --version | head -1
+
+      - name: Build the site
+        run: make -C doc site
+
+      # Local links and #anchors only; external URLs are not fetched.
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --include-fragments --no-progress doc/build/site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc/build/site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -19,7 +19,7 @@ GNUPLOT ?= gnuplot
 LATEXMK ?= latexmk
 ENTR    ?= entr
 
-.PHONY: all figs pdf check clean distclean test docs watch
+.PHONY: all figs pdf check clean distclean test docs site watch
 .DELETE_ON_ERROR:
 
 all: pdf
@@ -68,6 +68,10 @@ test:
 # Tutorial images: doc/img/*.png from doc/examples/.
 docs:
 	$(MAKE) -C doc
+
+# Static site from doc/ (pandoc): doc/build/site/, published by .github/workflows/docs.yml.
+site:
+	$(MAKE) -C doc site
 
 # Rebuild on every save (needs entr).  entr -d exits with status 2 when a
 # file is added to a watched folder: list the files again and carry on.

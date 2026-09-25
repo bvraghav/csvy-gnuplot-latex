@@ -15,7 +15,8 @@ doc/
 ├── tutorials/        101.md, sample-gantt-chart.md, advanced-gantt-chart.md
 ├── examples/         the inputs behind every figure in the tutorials
 ├── img/              the rendered figures (committed)
-└── Makefile          examples/ -> img/
+├── site/             the docs website's template, stylesheet and link filter
+└── Makefile          examples/ -> img/; make site -> build/site/
 ```
 
 ## Tutorials

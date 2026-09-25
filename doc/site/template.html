@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- pandoc template for the doc/ static site; see doc/Makefile (site). -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$pagetitle$ · $site_name$</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.9.0/github-markdown.min.css"
+        integrity="sha512-Ouq1+UcR9ENXndFyd/YA9i+ETLJmX3WoaMBF/nDzdqJbipKGL/SAbkO+qjDoxfD/dhZs4ZqgR9vXkolrK77xmQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="$root$site.css">
+</head>
+<body>
+  <nav class="site-nav">
+    <a class="site-name" href="$root$index.html">$site_name$</a>
+    <a href="$root$tutorials/101.html">101</a>
+    <a href="$root$tutorials/sample-gantt-chart.html">Sample Gantt chart</a>
+    <a href="$root$tutorials/advanced-gantt-chart.html">Advanced Gantt chart</a>
+    <a href="$root$REFERENCE.html">Reference</a>
+    <a href="$repo_url$">GitHub</a>
+  </nav>
+  <article class="markdown-body">
+$if(toc)$
+    <details class="toc">
+      <summary>Contents</summary>
+$table-of-contents$
+    </details>
+$endif$
+$body$
+  </article>
+  <footer class="site-footer">
+    Generated from <a href="$repo_url$/tree/$branch$/doc">doc/</a> with pandoc.
+  </footer>
+</body>
+</html>

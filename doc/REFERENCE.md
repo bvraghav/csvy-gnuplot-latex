@@ -8,7 +8,7 @@ The complete rules for the CSVY → gnuplot → LaTeX pipeline, as of version
 - [Template contract](#template-contract)
 - [LaTeX: `gnuplotfit.sty`](#latex-gnuplotfitsty)
 - [Template: `templates/gantt`](#template-templatesgantt)
-- [Makefiles](#makefiles)
+- [Makefiles](#makefiles), including the [docs website](#docs-website-make--c-doc-site)
 
 ## Input: `NAME.csvy`
 
@@ -258,6 +258,7 @@ Works on every `*.csvy` in the top folder (not in subfolders).
 | `check` | rebuild every figure from scratch in a temporary copy and compare with the one in the folder; prints `ok`, `is out of date` or `is missing` per figure, and fails if any differ |
 | `watch` | run `make $(WATCH_TARGET)` whenever a `.csvy`, a template (`templates/*.gp`, `templates/*.csvy`), `inp2gp.py`, `gnuplotfit.sty` or `$(DOC)` is saved; picks up new `.csvy` files; needs `entr`; stop with Ctrl-C |
 | `docs` | `make -C doc`: render the tutorial images |
+| `site` | `make -C doc site`: build the docs website |
 | `test` | `make -C test`: run the regression tests |
 | `clean` | remove `NAME.gp`, `NAME.dat`, `NAME.d` and `$(DOC)`'s LaTeX auxiliaries; keeps the committed `NAME.gp.tex` |
 | `distclean` | `clean`, and remove `NAME.gp.tex` too |
@@ -286,6 +287,7 @@ copy you commit.
 | Target | Does |
 |---|---|
 | `all` (default) | render every image listed in `IMGS` into `doc/img/` |
+| `site` | build the docs website into `doc/build/site/` |
 | `clean` | remove `doc/build/` (the images are committed) |
 
 - **From an example input:** each `examples/NAME.csvy` is built like a
@@ -296,3 +298,47 @@ copy you commit.
   natural size.
 - **Resolution:** `RES` (default 150 dpi) sets it; whole-page images use
   less.
+
+### Docs website: `make -C doc site`
+
+pandoc turns the Markdown in `doc/` into HTML in `doc/build/site/`:
+
+| Source | Page |
+|---|---|
+| `doc/README.md` | `index.html` |
+| `doc/REFERENCE.md` | `REFERENCE.html` |
+| `doc/tutorials/*.md` | `tutorials/*.html` |
+| `doc/img/*.png` | copied to `img/` |
+
+- **Reading:** `-f gfm` (GitHub's Markdown), so heading anchors match
+  GitHub's.
+- **Page frame:** `doc/site/template.html` supplies the navigation bar, a
+  collapsible contents list and the footer.
+- **Styling:** [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
+  5.9.0 from cdnjs, pinned with an integrity hash, plus `doc/site/site.css`
+  for the page layout. Light or dark follows the reader's system setting.
+- **Links:** `doc/site/links.lua` turns `X.md` links into `X.html`
+  (`README.md` into `index.html`). Every other relative link (`examples/`,
+  `../README.md`, …) is pointed at the file on GitHub, since the site holds
+  only pages and images.
+
+| Variable | Default |
+|---|---|
+| `PANDOC` | `pandoc` |
+| `SITE_NAME` | `csvy-gnuplot-latex` |
+| `REPO_URL` | `https://github.com/bvraghav/csvy-gnuplot-latex` |
+| `BRANCH` | `master` |
+
+Preview locally with `python3 -m http.server -d doc/build/site`.
+
+**Publishing:** `.github/workflows/docs.yml` runs on pushes and pull
+requests that touch `doc/`:
+1. It installs pandoc 3.10.2 and runs `make -C doc site`.
+2. It checks every internal link and `#anchor` with lychee (offline).
+3. On `master` only, it deploys the site to GitHub Pages.
+
+One-time setup: *Settings → Pages → Source: GitHub Actions*. The site is then
+at `https://bvraghav.github.io/csvy-gnuplot-latex/`.
+
+The navigation bar lists the pages by hand, so a new tutorial needs a link
+added in `doc/site/template.html`.
