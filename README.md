@@ -27,11 +27,23 @@ lists only what differs from the defaults.
 ## Requirements
 
 - Python 3 with PyYAML
-- gnuplot 5.4+ with the `tikz` terminal (tested with 6.0)
+- gnuplot 5.4+ with the `tikz` terminal
 - GNU make
+- LaTeX with TikZ and `gnuplot-lua-tikz.sty` (ships with gnuplot, not with
+  TeX Live; see [Using it in your own paper](#using-it-in-your-own-paper));
+  any engine
 - optional: `entr` for `make watch`; `pandoc` (3.x) for `make site`
-- LaTeX with TikZ and `gnuplot-lua-tikz.sty` (ships with gnuplot); any
-  engine (tested with XeLaTeX via latexmk)
+
+**Tested with** (Arch Linux, September 2026):
+
+| Tool | Version |
+|---|---|
+| gnuplot | 6.0 patchlevel 5 |
+| Python / PyYAML | 3.14.7 / 6.0.3 |
+| TeX Live / XeTeX / latexmk | 2026 / 3.141592653-2.6-0.999998 / 4.87 |
+| GNU make | 4.4.1 |
+| pandoc | 3.10.2 (also pinned in the docs workflow) |
+| entr | 5.7 |
 
 ## Quick start
 
@@ -186,6 +198,7 @@ the committed figures for the same reason; `make figs` updates them.
 | `example.tex` | example document |
 | `test/` | regression tests: `test_inp2gp.py`, `Makefile`, `cases/`, `golden/` |
 | `doc/` | `README.md` (contents), `REFERENCE.md`, `tutorials/`, their inputs (`examples/`), images (`img/`, committed) and `Makefile` |
+| `CHANGELOG.md` | changes in each version |
 | `VERSION`, `LICENSE` | the version number (the only place it is kept, besides the `.sty` headers); the MIT licence |
 
 Generated files (don't edit them): `NAME.gp`, `NAME.dat`, `NAME.d` (all
