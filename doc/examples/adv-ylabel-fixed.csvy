@@ -3,8 +3,11 @@
 # Only what differs from templates/gantt.csvy (the template's defaults).
 template: templates/gantt
 vars:
+  margin: {l: 2.6}
+  fig: {w: 8.6}
   t: {end: 24.0, grid: 2.0}    # drop 'end' to fit the data
 gnuplot:
+  ylabel: "'Task' offset -1.5,0"
   xlabel: "'Time (months)'"
   mxtics: 2
 ---

@@ -1,44 +1,69 @@
 # Advanced Gantt chart
 
 The [sample tutorial](sample-gantt-chart.md) changed the data. This one keeps
-the data and changes the template's settings: bar thickness, the gutters
-(margins) around the plot, the natural size, the grid and the labels.
+the data and changes the settings: bar thickness, the gutters (margins)
+around the plot, the natural size, the grid and the labels.
 
 Every example is `sample-base.csvy` with only the lines shown changed. The
 dashed red frame marks the size the figure was asked to fill; anything
 outside it is overflow.
 
-## Setting names: YAML keys and gnuplot variables
+## Two kinds of setting: `vars` and `gnuplot`
 
-Each frontmatter key becomes a gnuplot variable of the same name, and nested
-keys are joined with `_`. These two blocks give identical figures (checked
-byte for byte):
+A `.csvy` header has two sections. Each is applied over the template's
+defaults in `templates/gantt.csvy`, key by key, so you only write what
+changes:
+
+| Section | Becomes | Used for |
+|---|---|---|
+| `vars:` | gnuplot *variables* | the values `gantt.gp` calculates with |
+| `gnuplot:` | `set <key> <value>` lines, run before `gantt.gp` | everything else: labels, grid, border, tics, key, … |
+
+**`vars`:** nested keys are joined with `_`, so these two forms give
+identical figures (checked byte for byte):
 
 ```yaml
-# nested                                  # flat: the gnuplot names
-t: {start: 0.0, end: 24.0,                t_start: 0.0
-    grid: 2.0, minor: 2}                  t_end: 24.0
-fig: {w: 8.0, h: 4.0}                     t_grid: 2.0
-margin: {l: 2.0, b: 1.2}                  t_minor: 2
-                                          fig_w: 8.0
-                                          fig_h: 4.0
-                                          margin_l: 2.0
-                                          margin_b: 1.2
+vars:                                 vars:
+  t: {end: 24.0, grid: 2.0}             t_end: 24.0
+                                        t_grid: 2.0
 ```
 
-[`examples/adv-flat.csvy`](examples/adv-flat.csvy) is the flat form. Use
-whichever reads better; the rest of this page gives both names.
+[`examples/adv-flat.csvy`](examples/adv-flat.csvy) is the flat form. A
+nested override only changes what it names: `margin: {l: 3.4}` keeps the
+default `margin_b`.
 
-| YAML | gnuplot | Default | Unit |
+| `vars` key | gnuplot variable | Default | Unit |
 |---|---|---|---|
-| `bar_height` | `bar_height` | 0.6 | fraction of the row spacing |
-| `margin: {l}` | `margin_l` | 2.0 | cm |
-| `margin: {b}` | `margin_b` | 1.2 | cm |
+| `t: {start, end, grid}` | `t_start`, `t_end`, `t_grid` | 0, fit to the data, 1 | time |
 | `fig: {w, h}` | `fig_w`, `fig_h` | 8.0, 4.0 | cm |
-| `t: {start, end}` | `t_start`, `t_end` | 0, fit to the data | time |
-| `t: {grid, minor}` | `t_grid`, `t_minor` | 1, 1 | time; minor tics per major |
-| `plot_title`, `x_label`, `y_label` | same | `""`, `Time`, `""` | LaTeX text |
-| `show_text` | `show_text` | true | 1 / 0 |
+| `margin: {l, b}` | `margin_l`, `margin_b` | 2.0, 1.2 | cm |
+| `bar_height` | `bar_height` | 0.6 | fraction of the row spacing |
+| `show_text` | `show_text` | true | durations inside the bars |
+
+A misspelt var, such as `bar_hieght`, stops the build with "unknown var".
+The template only understands the vars in its defaults file, plus `t_end`,
+which it checks for itself.
+
+**`gnuplot`:** any gnuplot setting, written as-is. The template's defaults
+are:
+
+| `gnuplot` key | Default | Effect |
+|---|---|---|
+| `xlabel` | `'Time'` | x-axis label |
+| `mxtics` | `1` | minor intervals per labelled tick (1 = none) |
+| `ytics` | `scale 0` | no tick marks beside the task names |
+| `grid` | `xtics mxtics noytics lt 1 lc rgb '#d0d0d0', …` | vertical grid lines |
+| `border` | `3` | left and bottom axes only |
+| `tics` | `nomirror` | ticks on the left and bottom only |
+| `key` | `false` | no legend (`unset key`) |
+
+Settings that aren't in the defaults work too, e.g. `title`, `ylabel`,
+`label 1`, `arrow 1`. The exceptions are `terminal`, `output`, `datafile`
+and `table`, which the template and `inp2gp` need to control.
+
+**Which wins:** the `gnuplot:` lines run first, then the template. If the
+template sets something from a var, the var wins. For example, the x range
+always comes from `t`, so a `gnuplot: {xrange: …}` entry has no effect.
 
 ## Anatomy of the figure
 
@@ -67,14 +92,16 @@ With the tested settings, measured from the generated TikZ:
   The gap between bars is the remaining 0.20 cm.
 
 So the thickness of a bar depends on `bar_height`, `fig_h`, `margin_b` and
-the number of rows. The left and bottom gutters are yours to set. gnuplot
-sets the top and right ones itself, to fit the last tick label and the title.
+the number of rows. The left and bottom gutters are yours to set, through
+`vars`. gnuplot sets the top and right ones itself, to fit the last tick
+label and the title.
 
 ## Bar thickness: `bar_height`
 
 ```diff
--bar_height: 0.6
-+bar_height: 0.3        # or 0.9
+ vars:
++  bar_height: 0.3        # or 0.9; the default is 0.6
+   t: {end: 24.0, grid: 2.0}
 ```
 
 [`adv-bar-03.csvy`](examples/adv-bar-03.csvy),
@@ -121,10 +148,10 @@ Relabel the tasks:
    width. The plot area is back to 5.45 cm.
 
 ```diff
--fig: {w: 8.0, h: 4.0}
--margin: {l: 2.0, b: 1.2}
-+fig: {w: 9.4, h: 4.0}
-+margin: {l: 3.4, b: 1.2}
+ vars:
++  margin: {l: 3.4}
++  fig: {w: 9.4}
+   t: {end: 24.0, grid: 2.0}
 ```
 
 `\gnuplotfit` can then stretch it to any width from 9.4 cm up.
@@ -134,8 +161,9 @@ Relabel the tasks:
 The bottom gutter holds the tick numbers and the x-axis label.
 
 ```diff
--margin: {l: 2.0, b: 1.2}
-+margin: {l: 2.0, b: 0.6}        # or b: 2.0
+ vars:
++  margin: {b: 0.6}        # or b: 2.0; the default is 1.2
+   t: {end: 24.0, grid: 2.0}
 ```
 
 [`adv-margin-b-06.csvy`](examples/adv-margin-b-06.csvy),
@@ -158,8 +186,9 @@ means thinner bars. 1.2 cm fits one row of tick numbers plus a one-line label.
 Compare two ways to get a 12 cm × 6 cm figure:
 
 ```diff
--fig: {w: 8.0, h: 4.0}
-+fig: {w: 12.0, h: 6.0}
+ vars:
++  fig: {w: 12.0, h: 6.0}
+   t: {end: 24.0, grid: 2.0}
 ```
 
 [`adv-fig-12x6.csvy`](examples/adv-fig-12x6.csvy); both are placed with
@@ -179,35 +208,42 @@ gutters. For a figure that will always be large, raise `fig` to near that
 size, and keep `\gnuplotfit` for small adjustments. The same goes for adding
 many rows: raise `fig.h` rather than letting the bars get thin.
 
-## Grid: `t: {grid, minor}` / `t_grid`, `t_minor`
+## Grid: `t: {grid}` and `mxtics`
 
 ```diff
--t: {start: 0.0, end: 24.0, grid: 2.0, minor: 2}
-+t: {start: 0.0, end: 24.0, grid: 6.0, minor: 3}
+ vars:
+-  t: {end: 24.0, grid: 2.0}
++  t: {end: 24.0, grid: 6.0}
+ gnuplot:
+   xlabel: "'Time (months)'"
+-  mxtics: 2
++  mxtics: 3
 ```
 
 [`adv-grid.csvy`](examples/adv-grid.csvy)
 
 ![Labelled ticks at 0, 6, 12, 18 and 24 with two lighter minor lines between each](img/adv-grid.png)
 
-- **`grid`** is the spacing of the labelled ticks and the darker grid lines.
-- **`minor`** is the number of *intervals* between them, so `minor: 3`
-  draws two lighter lines, one every 2 months here, and `minor: 1` draws
-  none.
+- **`t: {grid}`** (a var) is the spacing of the labelled ticks and the
+  darker grid lines.
+- **`mxtics`** (a gnuplot setting) is the number of *intervals* between
+  them, so `mxtics: 3` draws two lighter lines, one every 2 months here, and
+  `mxtics: 1` draws none.
 
 Choose `grid` so that the numbers don't collide. At the natural width of
 8 cm, about 13 labels fit.
 
-## Labels: `plot_title`, `x_label`, `show_text`
+## Labels: `title`, `xlabel`, `show_text`
 
 ```diff
--plot_title: ""
--x_label: Time (months)
-+plot_title: Project plan
-+x_label: Months from kick-off
- ...
--show_text: true
-+show_text: false
+ vars:
++  show_text: false
+   t: {end: 24.0, grid: 2.0}
+ gnuplot:
++  title: "'Project plan'"
+-  xlabel: "'Time (months)'"
++  xlabel: "'Months from kick-off'"
+   mxtics: 2
 ```
 
 [`adv-labels.csvy`](examples/adv-labels.csvy)
@@ -216,20 +252,38 @@ Choose `grid` so that the numbers don't collide. At the natural width of
 
 - **The title takes its height from the plot:** gnuplot enlarges the top
   gutter automatically, so the rows get thinner, as with `margin.b`: here
-  the plot height drops from 2.49 cm to 1.88 cm. In a
-  paper, the figure's `\caption` usually replaces the title, so the tested
-  value is `""`.
-- **Labels are LaTeX:** `x_label: 'Time ($t$, months)'` works. In YAML, quote
-  a value that contains `: ` or starts with a special character.
+  the plot height drops from 2.49 cm to 1.88 cm. In a paper, the figure's
+  `\caption` usually replaces the title, so the template sets none.
+- **Labels are gnuplot strings:** write gnuplot's single quotes inside
+  YAML's (`"'Project plan'"`). For LaTeX with backslashes, use a `>-`
+  block, as shown in the
+  [sample tutorial](sample-gantt-chart.md) under *Writing labels*.
 
-### A known limit: `y_label`
+## y-axis label: `ylabel` with an offset
 
-`y_label` works, but gnuplot places it beside the task names using its own
-estimate of their width, which is too narrow for LaTeX text, so the two
-overlap. Widening `margin.l` doesn't help, because it moves both. The task
-names already label the axis, so the tested value is `""`. If you need a
-y-axis label, put it in the caption for now. Fixing this would need a new
-template setting (an offset for the label).
+gnuplot places `ylabel` beside the task names, using its own estimate of
+their width, which is too narrow for LaTeX text, so the two overlap.
+`ylabel` is an ordinary gnuplot setting, so gnuplot's `offset` option can
+move it left, in character widths. Give it room with `margin.l`, and widen
+`fig.w` by the same amount to keep the plot area:
+
+```diff
+ vars:
++  margin: {l: 2.6}
++  fig: {w: 8.6}
+   t: {end: 24.0, grid: 2.0}
+ gnuplot:
++  ylabel: "'Task' offset -1.5,0"
+   xlabel: "'Time (months)'"
+```
+
+[`adv-ylabel-plain.csvy`](examples/adv-ylabel-plain.csvy),
+[`adv-ylabel-fixed.csvy`](examples/adv-ylabel-fixed.csvy)
+
+![Two charts with the y label "Task": without an offset it overlaps the task names; with offset -1.5 and a 2.6 cm margin it sits clear of them, inside the frame](img/adv-ylabel.png)
+
+The right offset depends on your longest task name. Check the result, and
+keep the label inside the dashed frame.
 
 ## Summary
 
@@ -240,5 +294,7 @@ template setting (an offset for the label).
 | make room for bigger axis text | `margin.b` |
 | keep gutters tight in a large figure | raise `fig: {w, h}` rather than stretching a lot |
 | fit many rows | raise `fig.h` |
-| thin out the axis numbers | `t.grid`, `t.minor` |
+| thin out the axis numbers | `t.grid` (vars), `mxtics` (gnuplot) |
 | let the axis follow the data | remove `t.end` |
+| add a title or axis label | `title`, `xlabel`, `ylabel` (gnuplot; `ylabel` with an `offset`) |
+| change any other gnuplot setting | add it under `gnuplot:` |

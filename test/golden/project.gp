@@ -2,17 +2,22 @@
 data_file = 'project.dat'
 out_file = 'project.gp.tex'
 N_rows = 5
-plot_title = ''
-x_label = 'Time (months)'
-y_label = ''
+# vars: templates/gantt.csvy, then project.csvy
 t_start = 0.0
-t_end = 24.0
 t_grid = 2.0
-t_minor = 2
 fig_w = 8.0
 fig_h = 4.0
 margin_l = 2.0
 margin_b = 1.2
 bar_height = 0.6
 show_text = 1
+t_end = 24.0
+# gnuplot: templates/gantt.csvy, then project.csvy
+set xlabel 'Time (months)'
+set mxtics 2
+set ytics scale 0
+set grid xtics mxtics noytics lt 1 lc rgb '#d0d0d0', lt 1 lc rgb '#eeeeee'
+set border 3
+set tics nomirror
+unset key
 load 'templates/gantt.gp'

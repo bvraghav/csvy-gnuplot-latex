@@ -1,9 +1,12 @@
 ---
 # Labels that gnuplot's own reader would mangle, and t_end left to the template.
-template: templates/gantt.gp
-x_label: 'Time (\textit{months}, it''s $t$)'
-t: {start: 0, grid: 2}
-list_demo: [1, 2.5, "a'b"]
+template: templates/gantt
+vars:
+  t: {start: 0, grid: 2}
+gnuplot:
+  # LaTeX in a gnuplot string: gnuplot single quotes inside a YAML '>-' block
+  xlabel: >-
+    'Time (\textit{months}, it''s $t$)'
 ---
 Index,Start,End,Color,Buffer,BufferColor,Label
 1,0,2,#29bb78,0.5,#69cfa1,"A, B \& C"

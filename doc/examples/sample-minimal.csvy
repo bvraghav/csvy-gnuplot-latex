@@ -1,5 +1,5 @@
 ---
-template: templates/gantt.gp
+template: templates/gantt
 ---
 Index,Start,End,Color,Buffer,BufferColor,Label
 1,0.0,2.0,#29bb78,0.5,#69cfa1,KRA

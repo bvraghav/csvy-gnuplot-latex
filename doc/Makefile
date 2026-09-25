@@ -18,7 +18,7 @@ RES     ?= 150
 
 IMGS := 101-natural 101-compare 101-onecolumn 101-twocolumn \
         sample-minimal sample-base sample-shift sample-add sample-reorder sample-autofit \
-        adv-bar-height adv-margin-l adv-margin-b adv-fig-size adv-grid adv-labels
+        adv-bar-height adv-margin-l adv-margin-b adv-fig-size adv-grid adv-labels adv-ylabel
 
 CSVYS := $(notdir $(wildcard examples/*.csvy))
 FIGS  := $(addprefix build/,$(CSVYS:.csvy=.gp.tex))
@@ -37,7 +37,7 @@ build/templates:
 build/%.csvy: examples/%.csvy | build/templates
 	cp $< $@
 
-build/%.gp.tex: build/%.csvy $(ROOT)/inp2gp.py $(ROOT)/templates/gantt.gp
+build/%.gp.tex: build/%.csvy $(ROOT)/inp2gp.py $(ROOT)/templates/gantt.gp $(ROOT)/templates/gantt.csvy
 	cd build && $(PYTHON) $(ROOT)/inp2gp.py $*.csvy && $(GNUPLOT) $*.gp
 
 # An explicit wrapper wins; otherwise show the figure at its natural size.

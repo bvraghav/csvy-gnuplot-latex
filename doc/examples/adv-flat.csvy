@@ -1,19 +1,13 @@
 ---
 # Gantt chart: each task is followed by a buffer bar.
-template: templates/gantt.gp
-plot_title: ""
-x_label: Time (months)
-y_label: ""
-t_start: 0.0
-t_end: 24.0
-t_grid: 2.0
-t_minor: 2
-fig_w: 8.0
-fig_h: 4.0
-margin_l: 2.0
-margin_b: 1.2
-bar_height: 0.6
-show_text: true
+# Only what differs from templates/gantt.csvy (the template's defaults).
+template: templates/gantt
+vars:
+  t_end: 24.0
+  t_grid: 2.0
+gnuplot:
+  xlabel: "'Time (months)'"
+  mxtics: 2
 ---
 Index,Start,End,Color,Buffer,BufferColor,Label
 1,0.0,2.0,#29bb78,0.5,#69cfa1,KRA

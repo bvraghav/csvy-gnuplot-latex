@@ -14,7 +14,7 @@ smallest useful one names the template and gives the data:
 
 ```
 ---
-template: templates/gantt.gp
+template: templates/gantt
 ---
 Index,Start,End,Color,Buffer,BufferColor,Label
 1,0.0,2.0,#29bb78,0.5,#69cfa1,KRA
@@ -25,6 +25,11 @@ Index,Start,End,Color,Buffer,BufferColor,Label
 ```
 
 [`examples/sample-minimal.csvy`](examples/sample-minimal.csvy)
+
+`template: templates/gantt` names two files:
+
+- **`templates/gantt.gp`:** the gnuplot script that draws the chart.
+- **`templates/gantt.csvy`:** the template's defaults, a header with no data.
 
 | Column | Meaning |
 |---|---|
@@ -43,7 +48,7 @@ make figs          # schedule.csvy -> schedule.gp.tex
 
 Then, in LaTeX: `\gnuplotfit{schedule.gp.tex}` (see [101](101.md)).
 
-With nothing but defaults, the chart looks like this:
+With nothing but the template's defaults, the chart looks like this:
 
 ![The chart with default settings: the time axis has a tick at every unit from 0 to 23 and the numbers run together](img/sample-minimal.png)
 
@@ -55,23 +60,53 @@ The bars are right, but the defaults need help:
 - **The axis stops at 23:** the end of the last buffer, rounded up to the
   grid.
 
-## 2. The tested settings
+## 2. The template's defaults, and the tested settings
 
-The top folder's `project.csvy` adds settings that have been checked by the
-regression tests. Use them as your starting point:
+The defaults come from `templates/gantt.csvy`:
+
+```yaml
+---
+vars:                              # variables the template computes with
+  t:
+    start: 0.0
+    # end: 24.0       # leave out to fit the data (last buffer, rounded up to grid)
+    grid: 1.0         # labelled-tic spacing
+  fig: {w: 8.0, h: 4.0}        # natural size in cm; LaTeX only stretches it
+  margin: {l: 2.0, b: 1.2}     # cm; room for task names / x-axis text
+  bar_height: 0.6              # bar thickness, fraction of the row spacing (0..1)
+  show_text: true              # durations inside the task bars
+gnuplot:                           # plain gnuplot: each entry becomes 'set key value'
+  xlabel: "'Time'"
+  mxtics: 1                    # minor intervals per labelled tic (1 = none)
+  ytics: scale 0
+  grid: xtics mxtics noytics lt 1 lc rgb '#d0d0d0', lt 1 lc rgb '#eeeeee'
+  border: 3
+  tics: nomirror
+  key: false
+---
+```
+
+A `.csvy` has two sections, and each overrides the defaults key by key:
+
+- **`vars:`** holds the few values the template calculates with: the time
+  range, sizes, margins, bar thickness.
+- **`gnuplot:`** holds everything else, as ordinary gnuplot settings. Each
+  entry becomes `set <key> <value>`; `true` gives `set <key>` and `false`
+  gives `unset <key>`.
+
+The top folder's `project.csvy` overrides only three things. These are the
+settings the regression tests check, so use them as your starting point:
 
 ```
 ---
 # Gantt chart: each task is followed by a buffer bar.
-template: templates/gantt.gp
-plot_title: ""
-x_label: Time (months)
-y_label: ""
-t: {start: 0.0, end: 24.0, grid: 2.0, minor: 2}   # drop 'end' to fit the data
-fig: {w: 8.0, h: 4.0}        # natural size in cm; LaTeX only stretches it
-margin: {l: 2.0, b: 1.2}     # cm; room for task names / x-axis text
-bar_height: 0.6
-show_text: true
+# Only what differs from templates/gantt.csvy (the template's defaults).
+template: templates/gantt
+vars:
+  t: {end: 24.0, grid: 2.0}    # drop 'end' to fit the data
+gnuplot:
+  xlabel: "'Time (months)'"
+  mxtics: 2
 ---
 Index,Start,End,Color,Buffer,BufferColor,Label
 1,0.0,2.0,#29bb78,0.5,#69cfa1,KRA
@@ -85,16 +120,35 @@ Index,Start,End,Color,Buffer,BufferColor,Label
 
 ![The chart with the tested settings: ticks every 2 months up to 24 and a "Time (months)" axis label](img/sample-base.png)
 
-| Setting | Tested value | Default | Effect |
-|---|---|---|---|
-| `x_label` | `Time (months)` | `Time` | x-axis label |
-| `t: {start, end}` | `0`, `24` | `0`, fit to the data | x-axis range |
-| `t: {grid, minor}` | `2`, `2` | `1`, `1` | a labelled tick every 2, with one minor tick between |
-| `fig: {w, h}` | `8`, `4` | same | natural size in cm |
-| `margin: {l, b}` | `2.0`, `1.2` | same | room for task names and x-axis text, in cm |
-| `bar_height` | `0.6` | same | bar thickness as a fraction of the row spacing |
-| `show_text` | `true` | same | durations (`End − Start`) printed inside task bars |
-| `plot_title`, `y_label` | `""` | same | no title, no y-axis label |
+| Setting | Section | Tested value | Default | Effect |
+|---|---|---|---|---|
+| `t: {end}` | `vars` | `24` | fit to the data | end of the x axis |
+| `t: {grid}` | `vars` | `2` | `1` | a labelled tick every 2 |
+| `xlabel` | `gnuplot` | `'Time (months)'` | `'Time'` | x-axis label |
+| `mxtics` | `gnuplot` | `2` | `1` | one minor tick between labelled ones |
+
+Everything else keeps the template's default: 8 cm × 4 cm, margins of 2.0 cm
+and 1.2 cm, and bars at 0.6 of a row.
+
+**Writing labels:** a `gnuplot:` value is written into gnuplot as-is, so a
+label needs gnuplot's own quotes inside YAML's:
+
+| Label | In the `.csvy` |
+|---|---|
+| plain text | `xlabel: "'Time (months)'"` |
+| with LaTeX (backslashes) | on two lines, `xlabel: >-` then `'Time (\textit{months})'` indented |
+
+Use gnuplot's single quotes inside, as shown. With YAML's double quotes
+outside, `\t` in `\textit` would become a TAB, so labels containing
+backslashes go in a `>-` block, which leaves backslashes alone:
+
+```yaml
+gnuplot:
+  xlabel: >-
+    'Time (\textit{months}, it''s $t$)'
+```
+
+`''` inside gnuplot's single quotes is a literal `'`.
 
 The [advanced tutorial](advanced-gantt-chart.md) changes these settings. The
 rest of this page keeps them fixed and changes only the data.
@@ -175,8 +229,8 @@ beyond the fixed axis. Remove `end` from `t` so that the axis fits the data,
 and widen the grid to 4 so that the longer axis doesn't crowd:
 
 ```diff
--t: {start: 0.0, end: 24.0, grid: 2.0, minor: 2}   # drop 'end' to fit the data
-+t: {start: 0.0, grid: 4.0, minor: 2}   # no 'end': the axis fits the data
+-  t: {end: 24.0, grid: 2.0}    # drop 'end' to fit the data
++  t: {grid: 4.0}               # no 'end': the axis fits the data
  ...
 -5,9.0,20.0,#ee759e,3.0,#f39ebb,3D-AGM
 +5,9.0,27.0,#ee759e,5.5,#f39ebb,3D-AGM

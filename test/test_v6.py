@@ -29,7 +29,7 @@ HAVE_GNUPLOT = shutil.which("gnuplot") is not None
 HAVE_MAKE = shutil.which("make") is not None
 HAVE_LATEXMK = shutil.which("latexmk") is not None
 
-HEADER = "---\ntemplate: templates/gantt.gp\n---\n"
+HEADER = "---\ntemplate: templates/gantt\n---\n"
 
 
 def strip_meta(text):
@@ -68,6 +68,11 @@ class Sandbox(unittest.TestCase):
     def inp2gp(self, name):
         return self.run_in(sys.executable, "inp2gp.py", name)
 
+    def template(self, stem, defaults, gp="# test template\n"):
+        """Write templates/<stem>.gp and templates/<stem>.csvy (header only)."""
+        self.write(f"templates/{stem}.gp", gp)
+        self.write(f"templates/{stem}.csvy", "---\n" + defaults + "---\n")
+
     def build_figure(self, name):
         self.ok(sys.executable, "inp2gp.py", f"{name}.csvy")
         self.ok("gnuplot", f"{name}.gp")
@@ -94,15 +99,23 @@ class Generator(Sandbox):
                 self.check_golden(f"project.{ext}", self.read(f"project.{ext}"))
 
     def test_value_mapping(self):
+        self.template("t", "vars:\n"
+                           "  fig: {w: 1, h: 1}\n"
+                           "  flag: false\n"
+                           "  unset_flag: true\n"
+                           "  s: x\n"
+                           "  day: 2000-01-01\n"
+                           "  xs: [0]\n")
         self.write("v.csvy",
                    "---\n"
-                   "template: templates/gantt.gp\n"
-                   "fig: {w: 8, h: 4.5}\n"
-                   "flag: true\n"
-                   "unset_flag: false\n"
-                   "s: 'it''s \\LaTeX'\n"
-                   "day: 2026-09-25\n"
-                   "xs: [1, 2.5, x]\n"
+                   "template: templates/t\n"
+                   "vars:\n"
+                   "  fig: {w: 8, h: 4.5}\n"
+                   "  flag: true\n"
+                   "  unset_flag: false\n"
+                   "  s: 'it''s \\LaTeX'\n"
+                   "  day: 2026-09-25\n"
+                   "  xs: [1, 2.5, x]\n"
                    "---\n"
                    "A\n1\n")
         r = self.inp2gp("v.csvy")
@@ -119,7 +132,117 @@ class Generator(Sandbox):
                      "day = '2026-09-25'",
                      "array xs[3] = [1, 2.5, 'x']"]:
             self.assertIn(line, gp)
-        self.assertEqual(gp[-1], "load 'templates/gantt.gp'")
+        self.assertEqual(gp[-1], "load 'templates/t.gp'")
+
+    def test_vars_merge_over_defaults(self):
+        self.template("t", "vars:\n  a: 1\n  b: {c: 2, d: 3}\n",
+                      gp='if (!exists("opt")) opt = 0\n')
+        self.write("m.csvy", "---\ntemplate: templates/t\n"
+                             "vars: {b: {d: 30}, opt: 5}\n---\nA\n1\n")
+        r = self.inp2gp("m.csvy")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        gp = self.read("m.gp")
+        # defaults first, user values over them; 'opt' is allowed by exists()
+        self.assertIn("a = 1\nb_c = 2\nb_d = 30\nopt = 5\n", gp)
+
+    def test_gnuplot_values(self):
+        self.template("t", "")
+        self.write("g.csvy",
+                   "---\ntemplate: templates/t\n"
+                   "gnuplot:\n"
+                   "  xlabel: \"'Time'\"\n"
+                   "  border: 3\n"
+                   "  xtics: 0.5\n"
+                   "  grid: true\n"
+                   "  mytics:\n"
+                   "  key: false\n"
+                   "  \"arrow  1\": from 1,0 to 1,1 nohead\n"
+                   "  ylabel: >-\n"
+                   "    'Rate (\\textit{per} $t$)'\n"
+                   "---\nA\n1\n")
+        r = self.inp2gp("g.csvy")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        gp = self.read("g.gp")
+        self.assertIn("set xlabel 'Time'\n"
+                      "set border 3\n"
+                      "set xtics 0.5\n"
+                      "set grid\n"
+                      "set mytics\n"
+                      "unset key\n"
+                      "set arrow 1 from 1,0 to 1,1 nohead\n"
+                      "set ylabel 'Rate (\\textit{per} $t$)'\n"
+                      "load 'templates/t.gp'\n", gp)
+
+    def test_gnuplot_merge(self):
+        self.template("t", "gnuplot:\n"
+                           "  - xlabel: \"'A'\"\n"
+                           "  - label: \"1 'x' at 0,0\"\n"
+                           "  - label: \"2 'y' at 1,1\"\n"
+                           "  - border: 3\n")
+        self.write("g.csvy",
+                   "---\ntemplate: templates/t\n"
+                   "gnuplot:\n"
+                   "  - label: \"3 'z' at 2,2\"\n"
+                   "  - key: false\n"
+                   "---\nA\n1\n")
+        r = self.inp2gp("g.csvy")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        # the user's 'label' entries replace both defaults, in their place;
+        # new keys go at the end
+        self.assertIn("set xlabel 'A'\n"
+                      "set label 3 'z' at 2,2\n"
+                      "set border 3\n"
+                      "unset key\n"
+                      "load", self.read("g.gp"))
+
+    def test_header_list_form(self):
+        body = "---\n" + "{}" + "---\nA\n1\n"
+        self.write("a.csvy", body.format("template: templates/gantt\n"
+                                         "vars: {bar_height: 0.5}\n"
+                                         "gnuplot: {border: 15}\n"))
+        self.write("b.csvy", body.format("- template: templates/gantt\n"
+                                         "- vars: {bar_height: 0.5}\n"
+                                         "- gnuplot: {border: 15}\n"))
+        for name in ("a", "b"):
+            r = self.inp2gp(f"{name}.csvy")
+            self.assertEqual(r.returncode, 0, r.stderr)
+        # same output apart from comments and the file names derived from NAME
+        strip = lambda t, n: [l.replace(f"'{n}.", "'X.") for l in t.splitlines()
+                              if not l.startswith("#")]
+        self.assertEqual(strip(self.read("a.gp"), "a"), strip(self.read("b.gp"), "b"))
+
+    def test_template_choice(self):
+        self.template("t", "")
+        self.write("c.csvy", HEADER + "A\n1\n")
+        # the command line wins over the header; '.gp' is optional
+        for arg in ("--template=templates/t", "--template=templates/t.gp"):
+            r = self.run_in(sys.executable, "inp2gp.py", arg, "c.csvy")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(self.read("c.gp").splitlines()[-1], "load 'templates/t.gp'")
+        self.write("n.csvy", "---\n---\nA\n1\n")
+        r = self.run_in(sys.executable, "inp2gp.py", "--template", "templates/t", "n.csvy")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.write("p.csvy", "---\ntemplate: templates/gantt.gp\n---\nA\n1\n")
+        r = self.inp2gp("p.csvy")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(self.read("p.gp").splitlines()[-1], "load 'templates/gantt.gp'")
+
+    def test_template_errors(self):
+        self.write("templates/nodefaults.gp", "# no .csvy next to me\n")
+        self.template("withdata", "")
+        with open(self.dir / "templates/withdata.csvy", "a") as f:
+            f.write("A\n1\n")
+        self.template("hastemplate", "template: x\n")
+        for stem, message in [("nope", "template 'templates/nope': templates/nope.gp not found"),
+                              ("nodefaults", "templates/nodefaults.csvy not found"),
+                              ("withdata", "has a header only, no data"),
+                              ("hastemplate", "unknown frontmatter key 'template'")]:
+            with self.subTest(stem):
+                self.write("e.csvy", f"---\ntemplate: templates/{stem}\n---\nA\n1\n")
+                r = self.inp2gp("e.csvy")
+                self.assertNotEqual(r.returncode, 0)
+                self.assertIn(message, r.stderr)
+                self.assertFalse((self.dir / "e.gp").exists())
 
     def test_data_rewrite(self):
         self.write("d.csvy", HEADER + 'A,B\n\n1,"x, y"\n2,\\textbf{z} \\& w\n\n')
@@ -131,30 +254,59 @@ class Generator(Sandbox):
 
     def test_template_relative_to_input(self):
         (self.dir / "sub").mkdir()
-        self.write("sub/r.csvy", "---\ntemplate: ../templates/gantt.gp\n---\nA\n1\n")
+        self.write("sub/r.csvy", "---\ntemplate: ../templates/gantt\n---\nA\n1\n")
         r = self.inp2gp("sub/r.csvy")
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.read("sub/r.gp").splitlines()[-1], "load '../templates/gantt.gp'")
-        self.assertEqual(self.read("sub/r.d").splitlines()[0],
-                         "sub/r.gp.tex: sub/r.gp sub/r.dat templates/gantt.gp")
+        self.assertEqual(self.read("sub/r.d").splitlines(),
+                         ["sub/r.gp.tex: sub/r.gp sub/r.dat templates/gantt.gp",
+                          "sub/r.gp sub/r.dat sub/r.d: templates/gantt.csvy",
+                          "templates/gantt.gp: ;",
+                          "templates/gantt.csvy: ;"])
+
+    @staticmethod
+    def H(body):
+        """HEADER with extra frontmatter lines, and one data row."""
+        return "---\ntemplate: templates/gantt\n" + body + "---\nA\n1\n"
 
     ERRORS = [
         ("no frontmatter", "Index,Label\n1,a\n", "e.csvy:1: expected '---'"),
         ("unclosed frontmatter", "---\ntemplate: x\n", "no closing '---'"),
         ("bad yaml", "---\na: [1\n---\nA\n1\n", "YAML frontmatter"),
-        ("not a mapping", "---\n- 1\n---\nA\n1\n", "must be a mapping"),
-        ("no template", "---\nx: 1\n---\nA\n1\n", "needs 'template:"),
-        ("missing template", "---\ntemplate: nope.gp\n---\nA\n1\n", "template 'nope.gp' not found"),
-        ("bad key", HEADER.replace("---\n", "---\nmy-key: 1\n", 1) + "A\n1\n",
-         "e.csvy: key 'my-key' is not a valid gnuplot variable name"),
-        ("reserved key", HEADER.replace("---\n", "---\nout_file: x\n", 1) + "A\n1\n",
-         "key 'out_file' is reserved"),
-        ("null value", HEADER.replace("---\n", "---\nx_label:\n", 1) + "A\n1\n",
-         "key 'x_label': empty value"),
-        ("multi-line string", HEADER.replace("---\n", "---\ns: \"a\\nb\"\n", 1) + "A\n1\n",
+        ("not a mapping", "---\n42\n---\nA\n1\n", "expected a mapping or a list of one-key mappings"),
+        ("list item not one key", "---\n- template: a\n  vars: {}\n---\nA\n1\n", "one-key mappings"),
+        ("key given twice", "---\n- template: a\n- template: b\n---\nA\n1\n", "key 'template' given twice"),
+        ("unknown frontmatter key", "---\ntemplate: templates/gantt\nx_label: T\n---\nA\n1\n",
+         "unknown frontmatter key 'x_label'"),
+        ("no template", "---\nvars: {}\n---\nA\n1\n", "needs 'template:"),
+        ("vars not a mapping", "---\ntemplate: templates/gantt\nvars: [1]\n---\nA\n1\n",
+         "'vars' must be a mapping"),
+        ("bad var name", "---\ntemplate: templates/gantt\nvars: {my-key: 1}\n---\nA\n1\n",
+         "e.csvy: var 'my-key' is not a valid gnuplot variable name"),
+        ("reserved var", "---\ntemplate: templates/gantt\nvars: {out_file: x}\n---\nA\n1\n",
+         "var 'out_file' is reserved"),
+        ("unknown var", "---\ntemplate: templates/gantt\nvars: {bar_hieght: 1}\n---\nA\n1\n",
+         "unknown var(s) bar_hieght"),
+        ("null var", "---\ntemplate: templates/gantt\nvars: {bar_height: }\n---\nA\n1\n",
+         "var 'bar_height': empty value"),
+        ("multi-line var", "---\ntemplate: templates/gantt\nvars: {bar_height: \"a\\nb\"}\n---\nA\n1\n",
          "strings cannot span lines"),
-        ("nested list", HEADER.replace("---\n", "---\nxs: [[1]]\n", 1) + "A\n1\n",
+        ("nested list var", "---\ntemplate: templates/gantt\nvars: {bar_height: [[1]]}\n---\nA\n1\n",
          "unsupported value"),
+        ("reserved: terminal", "---\ntemplate: templates/gantt\ngnuplot: {terminal: png}\n---\nA\n1\n",
+         "gnuplot 'terminal' is reserved"),
+        ("reserved: term", "---\ntemplate: templates/gantt\ngnuplot: {term: png}\n---\nA\n1\n",
+         "gnuplot 'term' is reserved"),
+        ("reserved: out", "---\ntemplate: templates/gantt\ngnuplot: {out: x.tex}\n---\nA\n1\n",
+         "gnuplot 'out' is reserved"),
+        ("reserved: datafile", "---\ntemplate: templates/gantt\ngnuplot: {datafile separator: comma}\n---\nA\n1\n",
+         "gnuplot 'datafile separator' is reserved"),
+        ("reserved: table", "---\ntemplate: templates/gantt\ngnuplot: {table: x}\n---\nA\n1\n",
+         "gnuplot 'table' is reserved"),
+        ("multi-line set", "---\ntemplate: templates/gantt\ngnuplot: {xlabel: \"a\\nb\"}\n---\nA\n1\n",
+         "must be one line"),
+        ("unsupported set", "---\ntemplate: templates/gantt\ngnuplot: {xlabel: [1]}\n---\nA\n1\n",
+         "gnuplot 'xlabel': unsupported value"),
         ("no header", HEADER, "no CSV header row"),
         ("no rows", HEADER + "A,B\n", "no data rows"),
         ("empty column name", HEADER + "A,,C\n1,2,3\n", "e.csvy:4: empty column name"),
@@ -180,7 +332,8 @@ class Generator(Sandbox):
     def test_usage(self):
         r = self.run_in(sys.executable, "inp2gp.py", "project.txt")
         self.assertNotEqual(r.returncode, 0)
-        self.assertIn("Usage:", r.stderr)
+        self.assertIn("usage:", r.stderr)
+        self.assertIn("must be a .csvy file", r.stderr)
 
 
 # ------------------------------------------------------------------------------
@@ -218,6 +371,21 @@ class Gnuplot(Sandbox):
             self.assertIn(node, tex)
         self.assertNotIn("$8$", tex)
 
+    def test_gnuplot_entries_and_precedence(self):
+        # gnuplot: entries reach the figure; a var the template uses wins over
+        # a gnuplot: entry for the same setting (xrange comes from t_* vars).
+        csvy = self.read("project.csvy").replace(
+            "  mxtics: 2\n", "  mxtics: 2\n  border: 15\n  xrange: \"[0:5]\"\n")
+        self.write("p2.csvy", csvy)
+        tex = self.build_figure("p2")
+        base = self.build_figure("project")
+        self.assertNotEqual(strip_meta(tex), strip_meta(base))
+        self.assertIn("{$24$}", tex)       # t_end = 24 won over xrange [0:5]
+        # border 15 (all four sides) is drawn as a closed path; the default 3 is not
+        closed = re.compile(r"^\\draw\[gp path\].*--cycle;$", re.M)
+        self.assertTrue(closed.search(tex))
+        self.assertFalse(closed.search(base))
+
     def test_template_needs_generated_inputs(self):
         r = self.run_in("gnuplot", "templates/gantt.gp")
         self.assertNotEqual(r.returncode, 0)
@@ -246,7 +414,7 @@ class Make(Sandbox):
         self.ok("make", "figs")
         self.assertTrue((self.dir / "project.gp.tex").exists())
         self.assertTrue(self.up_to_date(), "fresh build is not up to date")
-        for src in ("templates/gantt.gp", "project.csvy", "inp2gp.py"):
+        for src in ("templates/gantt.gp", "templates/gantt.csvy", "project.csvy", "inp2gp.py"):
             with self.subTest(src):
                 self.bump(src)
                 self.assertFalse(self.up_to_date(), f"editing {src} does not trigger a rebuild")
@@ -271,7 +439,9 @@ class Make(Sandbox):
         self.assertIn("check: project.gp.tex ok", r.stdout)
 
         csvy = self.read("project.csvy")
-        self.write("project.csvy", csvy.replace("x_label: Time (months)", "x_label: Time (weeks)"))
+        edited = csvy.replace("'Time (months)'", "'Time (weeks)'")
+        self.assertNotEqual(edited, csvy)
+        self.write("project.csvy", edited)
         r = self.run_in("make", "-s", "check")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("project.gp.tex is out of date", r.stdout)
@@ -290,6 +460,15 @@ class Make(Sandbox):
             self.assertFalse((self.dir / f"project.{ext}").exists())
         self.ok("make", "distclean")
         self.assertFalse((self.dir / "project.gp.tex").exists())
+
+    def test_template_files_are_never_rebuilt(self):
+        # STEM.gp / STEM.csvy look like a make target and its source: make must not
+        # try to build the template from its defaults file.
+        gp = self.read("templates/gantt.gp")
+        self.ok("make", "figs")
+        self.bump("templates/gantt.csvy")
+        self.ok("make", "figs")
+        self.assertEqual(self.read("templates/gantt.gp"), gp)
 
     def test_failed_figure_leaves_nothing(self):
         self.write("bad.csvy", HEADER + 'A,B\n1,"say ""hi"""\n')

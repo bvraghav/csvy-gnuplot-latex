@@ -1,0 +1,21 @@
+---
+# Defaults for gantt.gp.  A NAME.csvy with 'template: templates/gantt'
+# is applied over these: it only needs what differs.
+vars:
+  t:
+    start: 0.0
+    # end: 24.0       # leave out to fit the data (last buffer, rounded up to grid)
+    grid: 1.0         # labelled-tic spacing
+  fig: {w: 8.0, h: 4.0}        # natural size in cm; LaTeX only stretches it
+  margin: {l: 2.0, b: 1.2}     # cm; room for task names / x-axis text
+  bar_height: 0.6              # bar thickness, fraction of the row spacing (0..1)
+  show_text: true              # durations inside the task bars
+gnuplot:
+  xlabel: "'Time'"
+  mxtics: 1                    # minor intervals per labelled tic (1 = none)
+  ytics: scale 0
+  grid: xtics mxtics noytics lt 1 lc rgb '#d0d0d0', lt 1 lc rgb '#eeeeee'
+  border: 3
+  tics: nomirror
+  key: false
+---

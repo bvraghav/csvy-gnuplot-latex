@@ -5,6 +5,7 @@ template: templates/gantt
 vars:
   t: {end: 24.0, grid: 2.0}    # drop 'end' to fit the data
 gnuplot:
+  ylabel: "'Task'"
   xlabel: "'Time (months)'"
   mxtics: 2
 ---

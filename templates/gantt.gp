@@ -16,23 +16,18 @@
 #   BufferColor  buffer colour, "#rrggbb"
 #   Label        task name (LaTeX)
 #
-# Settings: frontmatter keys, all optional; the defaults are below.
+# Vars (defaults and meanings in gantt.csvy, next to this file):
+#   t_start, t_end, t_grid   x range and labelled-tic spacing; t_end is
+#                            optional: without it the axis fits the data
+#   fig_w, fig_h             natural size in cm
+#   margin_l, margin_b       left / bottom margin in cm
+#   bar_height, show_text    bar thickness (fraction of a row); durations
+#
+# Everything else (labels, grid, border, tics, key) is plain gnuplot, set in
+# the 'gnuplot:' section of gantt.csvy / NAME.csvy before this file runs.
 
 if (!exists("data_file") || !exists("out_file")) \
     exit error "gantt.gp: data_file and out_file must be set (run NAME.gp, not this file)"
-
-if (!exists("plot_title")) plot_title = ""
-if (!exists("x_label"))    x_label    = "Time"
-if (!exists("y_label"))    y_label    = ""
-if (!exists("t_start"))    t_start    = 0.0     # x-axis min
-if (!exists("t_grid"))     t_grid     = 1.0     # major tic / grid spacing
-if (!exists("t_minor"))    t_minor    = 1       # minor tics per major (1 = none)
-if (!exists("bar_height")) bar_height = 0.6     # fraction of row spacing (0..1)
-if (!exists("show_text"))  show_text  = 1       # durations inside task bars
-if (!exists("fig_w"))      fig_w      = 8.0     # natural width in cm
-if (!exists("fig_h"))      fig_h      = 4.0     # natural height in cm (keep it small)
-if (!exists("margin_l"))   margin_l   = 2.0     # cm, room for the task names
-if (!exists("margin_b"))   margin_b   = 1.2     # cm, room for tic labels + x label
 
 # ==============================================================================
 # DATA
@@ -66,20 +61,9 @@ set bmargin at screen margin_b / fig_h
 hex2rgb(s) = int(("0x" . s[2:7]) + 0)
 dur(a, b) = sprintf("%g", b - a)
 
-set title plot_title
-set xlabel x_label
-set ylabel y_label
-
 set xrange [t_start:t_end]
 set yrange [0.5:N + 0.5]
 set xtics t_start, t_grid, t_end
-set mxtics t_minor
-set ytics scale 0
-set grid xtics mxtics lt 1 lc rgb "#d0d0d0", lt 1 lc rgb "#eeeeee"
-set grid noytics
-set border 3
-set tics nomirror
-unset key
 
 h = bar_height / 2.0
 

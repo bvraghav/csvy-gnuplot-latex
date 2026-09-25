@@ -75,7 +75,7 @@ WATCH_TARGET ?= all
 watch:
 	@command -v $(firstword $(ENTR)) > /dev/null || { echo "watch: needs entr"; exit 1; }
 	@while :; do \
-	  ls *.csvy templates/*.gp inp2gp.py gnuplotfit.sty $(DOC) 2> /dev/null \
+	  ls *.csvy templates/*.gp templates/*.csvy inp2gp.py gnuplotfit.sty $(DOC) 2> /dev/null \
 	    | $(ENTR) -d $(MAKE) --no-print-directory $(WATCH_TARGET); \
 	  [ $$? -eq 2 ] || break; \
 	done
