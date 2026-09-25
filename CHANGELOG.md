@@ -7,6 +7,13 @@ number itself is kept in `VERSION`.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-25
+
+First stable release. The interface documented in `doc/REFERENCE.md` (the
+`.csvy` format, `inp2gp.py`'s command line and outputs, the template contract,
+`\gnuplotfit`, the Gantt template, and the Makefile targets) now follows
+semantic versioning: breaking changes to it need a new major version.
+
 ### Added
 - Docs website on GitHub Pages, built with pandoc and make (`make site`) and
   published by `.github/workflows/docs.yml`. It uses github-markdown-css, has
@@ -77,7 +84,8 @@ number itself is kept in `VERSION`.
   and `distclean`. Figures are committed, and rebuilds are repeatable.
 - Regression tests with golden outputs, and tutorials with rendered images.
 
-[Unreleased]: https://github.com/bvraghav/csvy-gnuplot-latex/compare/0883252...HEAD
+[Unreleased]: https://github.com/bvraghav/csvy-gnuplot-latex/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/bvraghav/csvy-gnuplot-latex/compare/0883252...v1.0.0
 [0.0.8]: https://github.com/bvraghav/csvy-gnuplot-latex/commit/0883252
 [0.0.7]: https://github.com/bvraghav/csvy-gnuplot-latex/commit/89d068e
 [0.0.6]: https://github.com/bvraghav/csvy-gnuplot-latex/commit/38b9c0d
