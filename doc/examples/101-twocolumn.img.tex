@@ -1,0 +1,9 @@
+% Pages 1 and 2 of 101-twocolumn-doc: a figure* never lands on the page where
+% it is defined, so it tops page 2.
+\documentclass[border=6pt]{standalone}
+\usepackage{graphicx}
+\begin{document}
+\setlength\fboxsep{0pt}%
+\fbox{\includegraphics[page=1,width=8cm]{101-twocolumn-doc.img.pdf}}\hspace{6pt}%
+\fbox{\includegraphics[page=2,width=8cm]{101-twocolumn-doc.img.pdf}}
+\end{document}

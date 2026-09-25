@@ -1,0 +1,18 @@
+---
+# Gantt chart: each task is followed by a buffer bar.
+template: templates/gantt.gp
+plot_title: ""
+x_label: Time (months)
+y_label: ""
+t: {start: 0.0, end: 24.0, grid: 2.0, minor: 2}   # drop 'end' to fit the data
+fig: {w: 8.0, h: 4.0}        # natural size in cm; LaTeX only stretches it
+margin: {l: 2.0, b: 1.2}     # cm; room for task names / x-axis text
+bar_height: 0.6
+show_text: true
+---
+Index,Start,End,Color,Buffer,BufferColor,Label
+1,0.0,2.0,#29bb78,0.5,#69cfa1,KRA
+2,0.0,3.0,#2972db,1.0,#699ce6,EEM
+3,0.0,4.0,#eb6034,1.0,#f19071,AAM
+4,6.0,12.0,#eb9c00,2.0,#f1ba4c,2D-AGM
+5,12.0,21.0,#ee759e,3.0,#f39ebb,3D-AGM

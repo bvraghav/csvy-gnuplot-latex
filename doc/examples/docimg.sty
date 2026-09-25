@@ -1,0 +1,15 @@
+\ProvidesPackage{docimg}[2026/09/25 v0.0.6 Helpers for the tutorial images]
+\RequirePackage{gnuplotfit}
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+
+% \figframe{<fig_w>}{<fig_h>}: in the current group, draw a dashed red frame
+% around the next gnuplot figure's own area (0,0)--(fig_w,fig_h), i.e. the
+% size \gnuplotfit asked for.  Text outside the frame is overflow.
+\newcommand\figframe[2]{%
+  \tikzset{gnuplot/.append style={execute at end picture={%
+    \draw[red!70!black, densely dashed, line width=0.4pt] (0,0) rectangle (#1,#2);}}}}
+
+% \panel{<caption>}{<content>}: a captioned row of a comparison image.
+\newcommand\panel[2]{%
+  \par\medskip\noindent{\small\ttfamily #1}\par\smallskip\noindent#2\par}

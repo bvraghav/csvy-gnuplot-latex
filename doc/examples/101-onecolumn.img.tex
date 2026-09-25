@@ -1,0 +1,12 @@
+\documentclass{article}
+\usepackage{gnuplotfit}
+\usepackage{lipsum}
+\begin{document}
+\section*{One-column layout}
+\lipsum[1]
+\begin{figure}[h]\centering
+  \gnuplotfit[0.8\linewidth][10\baselineskip]{sample-base.gp.tex}
+  \caption{\texttt{\string\gnuplotfit[0.8\string\linewidth][10\string\baselineskip]}}
+\end{figure}
+\lipsum[2-3]
+\end{document}

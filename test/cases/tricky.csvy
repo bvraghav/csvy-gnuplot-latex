@@ -1,0 +1,12 @@
+---
+# Labels that gnuplot's own reader would mangle, and t_end left to the template.
+template: templates/gantt.gp
+x_label: 'Time (\textit{months}, it''s $t$)'
+t: {start: 0, grid: 2}
+list_demo: [1, 2.5, "a'b"]
+---
+Index,Start,End,Color,Buffer,BufferColor,Label
+1,0,2,#29bb78,0.5,#69cfa1,"A, B \& C"
+2,0,3,#2972db,1,#699ce6,\textbf{EEM}
+
+3,0,4,#eb6034,1,#f19071,it's

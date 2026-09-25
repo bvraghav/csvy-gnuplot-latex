@@ -1,0 +1,24 @@
+\documentclass[twocolumn]{article}
+\usepackage{graphicx,xcolor}
+\usepackage{gnuplotfit}
+
+\title{Gantt Chart}
+\begin{document}
+\maketitle
+\begin{abstract}
+  Gantt Chart in Latex.
+\end{abstract}
+
+Hello dolly.  See (Fig.~\ref{fig:gantt}) and (Fig.~\ref{fig:gantt-wide}).
+\begin{figure}[h]\centering
+\gnuplotfit[\linewidth][10\baselineskip]{project.gp.tex}
+\caption{Gantt chart, \texttt{\string\linewidth} $\times$ \texttt{10\string\baselineskip}.}
+\label{fig:gantt}
+\end{figure}
+
+\begin{figure*}[t]\centering
+\gnuplotfit[0.9\textwidth][14\baselineskip]{project.gp.tex}
+\caption{Gantt chart, \texttt{0.9\string\textwidth} $\times$ \texttt{14\string\baselineskip}.}
+\label{fig:gantt-wide}
+\end{figure*}
+\end{document}

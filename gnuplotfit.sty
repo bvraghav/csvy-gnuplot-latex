@@ -1,0 +1,22 @@
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{gnuplotfit}[2026/09/25 v0.0.6 Stretch gnuplot tikz figures to a given size]
+\RequirePackage{gnuplot-lua-tikz}
+
+% \gnuplotfit[<width>][<height>]{<file>}
+% Stretch a gnuplot tikz figure to <width> (default \linewidth) and
+% <height> (default: natural height), e.g. \columnwidth, 0.9\textwidth,
+% 10\baselineskip, 4cm.  Text size stays as gnuplot produced it, so only
+% stretch: shrinking below the natural size makes text overlap.
+\newsavebox\gnuplotfitbox
+\NewDocumentCommand\gnuplotfit{O{\linewidth} O{} m}{%
+  \begingroup
+  % measure the figure at its natural size
+  \sbox\gnuplotfitbox{\input{#3}\unskip}%
+  \tikzset{gnuplot/.append style={xscale={(#1)/(\the\wd\gnuplotfitbox)}}}%
+  \if\relax\detokenize{#2}\relax\else
+    \tikzset{gnuplot/.append style={yscale={(#2)/(\the\dimexpr\ht\gnuplotfitbox+\dp\gnuplotfitbox\relax)}}}%
+  \fi
+  \input{#3}\unskip % drop the space from the file's final newline
+  \endgroup}
+
+\endinput

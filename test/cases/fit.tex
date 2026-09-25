@@ -1,0 +1,16 @@
+% Measure \gnuplotfit results; test_v6.py reads the FIT lines from the log.
+% FIT <case> <got width> <got height> <want width> <want height>
+\documentclass[twocolumn]{article}
+\usepackage{gnuplotfit}
+\newcommand\fit[4]{% case, width, height (empty = natural), wanted height
+  \setbox0\hbox{\gnuplotfit[#2][#3]{project.gp.tex}}%
+  \typeout{FIT #1 \the\wd0 \space\the\dimexpr\ht0+\dp0\relax\space
+    \the\dimexpr#2\relax\space\the\dimexpr#4\relax}}
+\begin{document}
+\fit{natural}{\linewidth}{}{4cm}
+\fit{column}{\columnwidth}{10\baselineskip}{10\baselineskip}
+\fit{wide}{0.9\textwidth}{14\baselineskip}{14\baselineskip}
+\fit{fixed}{12cm}{5cm}{5cm}
+% latexmk treats a document without pages as a failure
+Sizes are in the log (FIT lines).
+\end{document}

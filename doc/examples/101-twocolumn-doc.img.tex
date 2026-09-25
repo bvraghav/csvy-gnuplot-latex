@@ -1,0 +1,17 @@
+% The two-column article; 101-twocolumn shows its first two pages side by side.
+\documentclass[twocolumn]{article}
+\usepackage{gnuplotfit}
+\usepackage{lipsum}
+\begin{document}
+\section*{Two-column layout}
+\lipsum[1]
+\begin{figure*}[t]\centering
+  \gnuplotfit[\textwidth][12\baselineskip]{sample-base.gp.tex}
+  \caption{\texttt{figure*}: \texttt{\string\gnuplotfit[\string\textwidth][12\string\baselineskip]}}
+\end{figure*}
+\begin{figure}[t]\centering
+  \gnuplotfit[\linewidth][10\baselineskip]{sample-base.gp.tex}
+  \caption{\texttt{figure}: \texttt{\string\gnuplotfit[\string\linewidth][10\string\baselineskip]}}
+\end{figure}
+\lipsum[2-9]
+\end{document}

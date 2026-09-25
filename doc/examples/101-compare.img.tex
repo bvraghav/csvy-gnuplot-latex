@@ -1,0 +1,15 @@
+% \gnuplotfit (text keeps its size) vs \includegraphics (text scales too).
+\documentclass[varwidth=13cm,border=6pt]{standalone}
+\usepackage{docimg}
+\begin{document}
+\panel{(a) \string\input\{sample-base.gp.tex\}  -- natural size, 8cm x 4cm}
+  {\input{sample-base.gp.tex}\unskip}
+\panel{(b) \string\gnuplotfit[12cm]\{sample-base.gp.tex\}}
+  {\gnuplotfit[12cm]{sample-base.gp.tex}}
+\panel{(c) \string\gnuplotfit[12cm][6cm]\{sample-base.gp.tex\}}
+  {\gnuplotfit[12cm][6cm]{sample-base.gp.tex}}
+\panel{(d) \string\includegraphics[width=12cm]\{sample-base.pdf\}}
+  {\includegraphics[width=12cm]{101-natural.img.pdf}}
+\panel{(e) \string\includegraphics[width=12cm,height=6cm]\{sample-base.pdf\}}
+  {\includegraphics[width=12cm,height=6cm]{101-natural.img.pdf}}
+\end{document}
