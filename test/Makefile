@@ -9,7 +9,7 @@ export PYTHONDONTWRITEBYTECODE = 1
 .PHONY: test golden
 
 test:
-	$(PYTHON) -m unittest -v test_v6
+	$(PYTHON) -m unittest -v test_inp2gp
 
 golden:
-	UPDATE_GOLDEN=1 $(PYTHON) -m unittest test_v6.Generator.test_project_golden test_v6.Gnuplot.test_project_figure_golden
+	UPDATE_GOLDEN=1 $(PYTHON) -m unittest test_inp2gp.Generator.test_project_golden test_inp2gp.Gnuplot.test_project_figure_golden

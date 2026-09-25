@@ -24,7 +24,7 @@ Index,Start,End,Color,Buffer,BufferColor,Label
 5,9.0,20.0,#ee759e,3.0,#f39ebb,3D-AGM
 ```
 
-[`examples/sample-minimal.csvy`](examples/sample-minimal.csvy)
+[`examples/sample-minimal.csvy`](../examples/sample-minimal.csvy)
 
 `template: templates/gantt` names two files:
 
@@ -50,7 +50,7 @@ Then, in LaTeX: `\gnuplotfit{schedule.gp.tex}` (see [101](101.md)).
 
 With nothing but the template's defaults, the chart looks like this:
 
-![The chart with default settings: the time axis has a tick at every unit from 0 to 23 and the numbers run together](img/sample-minimal.png)
+![The chart with default settings: the time axis has a tick at every unit from 0 to 23 and the numbers run together](../img/sample-minimal.png)
 
 The bars are right, but the defaults need help:
 
@@ -116,9 +116,9 @@ Index,Start,End,Color,Buffer,BufferColor,Label
 5,9.0,20.0,#ee759e,3.0,#f39ebb,3D-AGM
 ```
 
-[`examples/sample-base.csvy`](examples/sample-base.csvy)
+[`examples/sample-base.csvy`](../examples/sample-base.csvy)
 
-![The chart with the tested settings: ticks every 2 months up to 24 and a "Time (months)" axis label](img/sample-base.png)
+![The chart with the tested settings: ticks every 2 months up to 24 and a "Time (months)" axis label](../img/sample-base.png)
 
 | Setting | Section | Tested value | Default | Effect |
 |---|---|---|---|---|
@@ -148,7 +148,8 @@ gnuplot:
     'Time (\textit{months}, it''s $t$)'
 ```
 
-`''` inside gnuplot's single quotes is a literal `'`.
+`''` inside gnuplot's single quotes is a literal `'`. The full rules for
+both sections are in the [reference](../REFERENCE.md#generator-inp2gppy).
 
 The [advanced tutorial](advanced-gantt-chart.md) changes these settings. The
 rest of this page keeps them fixed and changes only the data.
@@ -175,9 +176,9 @@ months later and finish it one month later:
 +5,12.0,21.0,#ee759e,3.0,#f39ebb,3D-AGM
 ```
 
-[`examples/sample-shift.csvy`](examples/sample-shift.csvy)
+[`examples/sample-shift.csvy`](../examples/sample-shift.csvy)
 
-![2D-AGM now runs from 6 to 12 and 3D-AGM from 12 to 21; their duration labels read 6 and 9](img/sample-shift.png)
+![2D-AGM now runs from 6 to 12 and 3D-AGM from 12 to 21; their duration labels read 6 and 9](../img/sample-shift.png)
 
 The bars move, and the durations inside them update (6 and 9). The axis
 stays at 0–24 because `t.end` is fixed. 3D-AGM's buffer now ends at exactly
@@ -192,9 +193,9 @@ Append a row. `Index` 6 puts it on top:
 +6,20.0,22.0,#8e44ad,0.5,#b07cc6,Report
 ```
 
-[`examples/sample-add.csvy`](examples/sample-add.csvy)
+[`examples/sample-add.csvy`](../examples/sample-add.csvy)
 
-![A sixth row, Report, at the top from 20 to 22; all rows are a little thinner](img/sample-add.png)
+![A sixth row, Report, at the top from 20 to 22; all rows are a little thinner](../img/sample-add.png)
 
 The figure stays 8 cm × 4 cm, so the six rows share the height that five had
 before, and every bar gets thinner. If you add many rows, raise `fig.h` (see
@@ -218,9 +219,9 @@ so the chart reads top-down, in time order:
 +1,9.0,20.0,#ee759e,3.0,#f39ebb,3D-AGM
 ```
 
-[`examples/sample-reorder.csvy`](examples/sample-reorder.csvy)
+[`examples/sample-reorder.csvy`](../examples/sample-reorder.csvy)
 
-![The same chart upside down: KRA at the top, 3D-AGM at the bottom](img/sample-reorder.png)
+![The same chart upside down: KRA at the top, 3D-AGM at the bottom](../img/sample-reorder.png)
 
 ### Let the axis follow the data
 
@@ -236,9 +237,9 @@ and widen the grid to 4 so that the longer axis doesn't crowd:
 +5,9.0,27.0,#ee759e,5.5,#f39ebb,3D-AGM
 ```
 
-[`examples/sample-autofit.csvy`](examples/sample-autofit.csvy)
+[`examples/sample-autofit.csvy`](../examples/sample-autofit.csvy)
 
-![The axis now runs from 0 to 36 in steps of 4, and 3D-AGM ends at 27 with its buffer reaching 32.5](img/sample-autofit.png)
+![The axis now runs from 0 to 36 in steps of 4, and 3D-AGM ends at 27 with its buffer reaching 32.5](../img/sample-autofit.png)
 
 Without `end`, the axis ends at the last buffer's end, rounded up to the grid:
 32.5 becomes 36. With a fixed `end: 24.0`, the bar would have been cut off at

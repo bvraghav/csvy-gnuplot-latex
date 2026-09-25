@@ -1,13 +1,32 @@
-# Tutorials
+# Documentation
 
-Worked examples for the CSVY → gnuplot → LaTeX pipeline described in the
-[top-level README](../README.md). Read them in order; each builds on the last.
+For the CSVY → gnuplot → LaTeX pipeline described in the
+[top-level README](../README.md).
+
+| | |
+|---|---|
+| [Tutorials](#tutorials) | worked examples with pictures; read them in order |
+| [REFERENCE.md](REFERENCE.md) | the complete rules: input format, generator, template contract, `\gnuplotfit`, the Gantt template, Makefiles |
+
+```
+doc/
+├── README.md         this page
+├── REFERENCE.md
+├── tutorials/        101.md, sample-gantt-chart.md, advanced-gantt-chart.md
+├── examples/         the inputs behind every figure in the tutorials
+├── img/              the rendered figures (committed)
+└── Makefile          examples/ -> img/
+```
+
+## Tutorials
+
+Each builds on the last.
 
 | # | Tutorial | You will learn |
 |---|---|---|
-| 1 | [101: sizing a figure in LaTeX](101.md) | `\gnuplotfit` vs `\includegraphics`; natural size; stretching width and height; one- and two-column layouts |
-| 2 | [A sample Gantt chart](sample-gantt-chart.md) | writing a `.csvy`; the template's defaults and the tested settings; writing labels; how editing the data changes the chart |
-| 3 | [Advanced Gantt chart](advanced-gantt-chart.md) | `vars` and `gnuplot` settings: bar thickness, margins (gutters), natural size, grid, title, y-axis label |
+| 1 | [101: sizing a figure in LaTeX](tutorials/101.md) | `\gnuplotfit` vs `\includegraphics`; natural size; stretching width and height; one- and two-column layouts |
+| 2 | [A sample Gantt chart](tutorials/sample-gantt-chart.md) | writing a `.csvy`; the template's defaults and the tested settings; writing labels; how editing the data changes the chart |
+| 3 | [Advanced Gantt chart](tutorials/advanced-gantt-chart.md) | `vars` and `gnuplot` settings: bar thickness, margins (gutters), natural size, grid, title, y-axis label |
 
 ## Following along
 

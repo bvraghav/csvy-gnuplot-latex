@@ -28,42 +28,31 @@ vars:                                 vars:
                                         t_grid: 2.0
 ```
 
-[`examples/adv-flat.csvy`](examples/adv-flat.csvy) is the flat form. A
+[`examples/adv-flat.csvy`](../examples/adv-flat.csvy) is the flat form. A
 nested override only changes what it names: `margin: {l: 3.4}` keeps the
 default `margin_b`.
 
-| `vars` key | gnuplot variable | Default | Unit |
-|---|---|---|---|
-| `t: {start, end, grid}` | `t_start`, `t_end`, `t_grid` | 0, fit to the data, 1 | time |
-| `fig: {w, h}` | `fig_w`, `fig_h` | 8.0, 4.0 | cm |
-| `margin: {l, b}` | `margin_l`, `margin_b` | 2.0, 1.2 | cm |
-| `bar_height` | `bar_height` | 0.6 | fraction of the row spacing |
-| `show_text` | `show_text` | true | durations inside the bars |
+The Gantt template's vars are `t: {start, end, grid}`, `fig: {w, h}`,
+`margin: {l, b}`, `bar_height` and `show_text`. Their defaults and units are
+in the [reference](../REFERENCE.md#template-templatesgantt).
 
 A misspelt var, such as `bar_hieght`, stops the build with "unknown var".
 The template only understands the vars in its defaults file, plus `t_end`,
 which it checks for itself.
 
 **`gnuplot`:** any gnuplot setting, written as-is. The template's defaults
-are:
-
-| `gnuplot` key | Default | Effect |
-|---|---|---|
-| `xlabel` | `'Time'` | x-axis label |
-| `mxtics` | `1` | minor intervals per labelled tick (1 = none) |
-| `ytics` | `scale 0` | no tick marks beside the task names |
-| `grid` | `xtics mxtics noytics lt 1 lc rgb '#d0d0d0', …` | vertical grid lines |
-| `border` | `3` | left and bottom axes only |
-| `tics` | `nomirror` | ticks on the left and bottom only |
-| `key` | `false` | no legend (`unset key`) |
-
-Settings that aren't in the defaults work too, e.g. `title`, `ylabel`,
+set the x label, minor ticks, grid, border, tics and key; see
+`templates/gantt.csvy` (shown in the
+[sample tutorial](sample-gantt-chart.md)). Settings that aren't in the
+defaults work too, e.g. `title`, `ylabel`,
 `label 1`, `arrow 1`. The exceptions are `terminal`, `output`, `datafile`
 and `table`, which the template and `inp2gp` need to control.
 
 **Which wins:** the `gnuplot:` lines run first, then the template. If the
 template sets something from a var, the var wins. For example, the x range
-always comes from `t`, so a `gnuplot: {xrange: …}` entry has no effect.
+always comes from `t`, so a `gnuplot: {xrange: …}` entry has no effect. The
+full merging rules are in the
+[reference](../REFERENCE.md#generator-inp2gppy).
 
 ## Anatomy of the figure
 
@@ -104,10 +93,10 @@ label and the title.
    t: {end: 24.0, grid: 2.0}
 ```
 
-[`adv-bar-03.csvy`](examples/adv-bar-03.csvy),
-[`adv-bar-09.csvy`](examples/adv-bar-09.csvy)
+[`adv-bar-03.csvy`](../examples/adv-bar-03.csvy),
+[`adv-bar-09.csvy`](../examples/adv-bar-09.csvy)
 
-![Three charts with bar_height 0.3, 0.6 and 0.9; at 0.3 the white duration numbers are taller than the bars and partly vanish](img/adv-bar-height.png)
+![Three charts with bar_height 0.3, 0.6 and 0.9; at 0.3 the white duration numbers are taller than the bars and partly vanish](../img/adv-bar-height.png)
 
 | `bar_height` | Bar | Gap between bars |
 |---|---|---|
@@ -132,11 +121,11 @@ Relabel the tasks:
  ...                                              (and the other four)
 ```
 
-[`adv-margin-l-20.csvy`](examples/adv-margin-l-20.csvy),
-[`adv-margin-l-34.csvy`](examples/adv-margin-l-34.csvy),
-[`adv-margin-l-34-w94.csvy`](examples/adv-margin-l-34-w94.csvy)
+[`adv-margin-l-20.csvy`](../examples/adv-margin-l-20.csvy),
+[`adv-margin-l-34.csvy`](../examples/adv-margin-l-34.csvy),
+[`adv-margin-l-34-w94.csvy`](../examples/adv-margin-l-34-w94.csvy)
 
-![Three charts with long task names: at margin l 2.0 "Literature review" sticks out past the left edge of the red frame; at 3.4 the names fit but the axis numbers run together; at 3.4 with width 9.4 everything fits](img/adv-margin-l.png)
+![Three charts with long task names: at margin l 2.0 "Literature review" sticks out past the left edge of the red frame; at 3.4 the names fit but the axis numbers run together; at 3.4 with width 9.4 everything fits](../img/adv-margin-l.png)
 
 1. **`margin: {l: 2.0}`:** "Literature review" is about 2.7 cm wide and
    sticks out of the figure. In a document, the figure would be wider than
@@ -166,10 +155,10 @@ The bottom gutter holds the tick numbers and the x-axis label.
    t: {end: 24.0, grid: 2.0}
 ```
 
-[`adv-margin-b-06.csvy`](examples/adv-margin-b-06.csvy),
-[`adv-margin-b-20.csvy`](examples/adv-margin-b-20.csvy)
+[`adv-margin-b-06.csvy`](../examples/adv-margin-b-06.csvy),
+[`adv-margin-b-20.csvy`](../examples/adv-margin-b-20.csvy)
 
-![Three charts with bottom margin 0.6, 1.2 and 2.0: at 0.6 the axis label crosses the bottom of the red frame; at 2.0 the rows are squeezed and there is empty space below](img/adv-margin-b.png)
+![Three charts with bottom margin 0.6, 1.2 and 2.0: at 0.6 the axis label crosses the bottom of the red frame; at 2.0 the rows are squeezed and there is empty space below](../img/adv-margin-b.png)
 
 | `margin.b` | Plot height | Row pitch | Bar (at 0.6) | Result |
 |---|---|---|---|---|
@@ -191,10 +180,10 @@ Compare two ways to get a 12 cm × 6 cm figure:
    t: {end: 24.0, grid: 2.0}
 ```
 
-[`adv-fig-12x6.csvy`](examples/adv-fig-12x6.csvy); both are placed with
+[`adv-fig-12x6.csvy`](../examples/adv-fig-12x6.csvy); both are placed with
 `\gnuplotfit[12cm][6cm]`.
 
-![Two 12 by 6 cm charts: the stretched 8 by 4 one has wide empty gutters; the natural 12 by 6 one has tighter gutters and a bigger plot area](img/adv-fig-size.png)
+![Two 12 by 6 cm charts: the stretched 8 by 4 one has wide empty gutters; the natural 12 by 6 one has tighter gutters and a bigger plot area](../img/adv-fig-size.png)
 
 | | Natural 8 × 4, stretched ×1.5 | Natural 12 × 6 |
 |---|---|---|
@@ -220,9 +209,9 @@ many rows: raise `fig.h` rather than letting the bars get thin.
 +  mxtics: 3
 ```
 
-[`adv-grid.csvy`](examples/adv-grid.csvy)
+[`adv-grid.csvy`](../examples/adv-grid.csvy)
 
-![Labelled ticks at 0, 6, 12, 18 and 24 with two lighter minor lines between each](img/adv-grid.png)
+![Labelled ticks at 0, 6, 12, 18 and 24 with two lighter minor lines between each](../img/adv-grid.png)
 
 - **`t: {grid}`** (a var) is the spacing of the labelled ticks and the
   darker grid lines.
@@ -246,9 +235,9 @@ Choose `grid` so that the numbers don't collide. At the natural width of
    mxtics: 2
 ```
 
-[`adv-labels.csvy`](examples/adv-labels.csvy)
+[`adv-labels.csvy`](../examples/adv-labels.csvy)
 
-![A chart titled "Project plan" with the x-axis label "Months from kick-off" and no numbers inside the bars](img/adv-labels.png)
+![A chart titled "Project plan" with the x-axis label "Months from kick-off" and no numbers inside the bars](../img/adv-labels.png)
 
 - **The title takes its height from the plot:** gnuplot enlarges the top
   gutter automatically, so the rows get thinner, as with `margin.b`: here
@@ -277,10 +266,10 @@ move it left, in character widths. Give it room with `margin.l`, and widen
    xlabel: "'Time (months)'"
 ```
 
-[`adv-ylabel-plain.csvy`](examples/adv-ylabel-plain.csvy),
-[`adv-ylabel-fixed.csvy`](examples/adv-ylabel-fixed.csvy)
+[`adv-ylabel-plain.csvy`](../examples/adv-ylabel-plain.csvy),
+[`adv-ylabel-fixed.csvy`](../examples/adv-ylabel-fixed.csvy)
 
-![Two charts with the y label "Task": without an offset it overlaps the task names; with offset -1.5 and a 2.6 cm margin it sits clear of them, inside the frame](img/adv-ylabel.png)
+![Two charts with the y label "Task": without an offset it overlaps the task names; with offset -1.5 and a 2.6 cm margin it sits clear of them, inside the frame](../img/adv-ylabel.png)
 
 The right offset depends on your longest task name. Check the result, and
 keep the label inside the dashed frame.
