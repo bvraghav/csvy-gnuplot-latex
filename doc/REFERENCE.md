@@ -306,6 +306,7 @@ pandoc turns the Markdown in `doc/` into HTML in `doc/build/site/`:
 | Source | Page |
 |---|---|
 | `doc/README.md` | `index.html` |
+| `README.md` (the top-level README) | `ABOUT.html` |
 | `doc/REFERENCE.md` | `REFERENCE.html` |
 | `doc/tutorials/*.md` | `tutorials/*.html` |
 | `doc/img/*.png` | copied to `img/` |
@@ -317,10 +318,12 @@ pandoc turns the Markdown in `doc/` into HTML in `doc/build/site/`:
 - **Styling:** [github-markdown-css](https://github.com/sindresorhus/github-markdown-css)
   5.9.0 from cdnjs, pinned with an integrity hash, plus `doc/site/site.css`
   for the page layout. Light or dark follows the reader's system setting.
-- **Links:** `doc/site/links.lua` turns `X.md` links into `X.html`
-  (`README.md` into `index.html`). Every other relative link (`examples/`,
-  `../README.md`, …) is pointed at the file on GitHub, since the site holds
-  only pages and images.
+- **Links:** `doc/site/links.lua` resolves each relative link to a path in
+  the repository. Links to the pages above become links between the HTML
+  pages, relative to each page. Every other relative link (`examples/`,
+  `LICENSE`, …) is pointed at the file on GitHub, since the site holds only
+  pages and images. The Markdown is unchanged, so the same links work when
+  reading on GitHub.
 
 | Variable | Default |
 |---|---|
@@ -332,7 +335,7 @@ pandoc turns the Markdown in `doc/` into HTML in `doc/build/site/`:
 Preview locally with `python3 -m http.server -d doc/build/site`.
 
 **Publishing:** `.github/workflows/docs.yml` runs on pushes and pull
-requests that touch `doc/`:
+requests that touch `doc/` or the top-level `README.md`:
 1. It installs pandoc 3.10.2 and runs `make -C doc site`.
 2. It checks every internal link and `#anchor` with lychee (offline).
 3. On `master` only, it deploys the site to GitHub Pages.

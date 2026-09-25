@@ -69,9 +69,10 @@ build/101-compare.img.pdf: build/101-natural.img.pdf
 build/101-twocolumn.img.pdf: build/101-twocolumn-doc.img.pdf
 
 # --- Static site ----------------------------------------------------------------
-#   README.md -> build/site/index.html, REFERENCE.md, tutorials/*.md -> *.html,
-#   img/ copied.  site/links.lua rewrites .md links to .html and every other
-#   relative link (examples/, ../README.md, ...) to the file on GitHub.
+#   README.md -> build/site/index.html, ../README.md (the top-level README)
+#   -> ABOUT.html, REFERENCE.md, tutorials/*.md -> *.html, img/ copied.
+#   site/links.lua points links between these pages at the .html pages, and
+#   every other relative link (examples/, LICENSE, ...) at the file on GitHub.
 #   Preview: python3 -m http.server -d build/site
 
 PANDOC    ?= pandoc
@@ -80,7 +81,7 @@ SITE_NAME ?= csvy-gnuplot-latex
 REPO_URL  ?= https://github.com/bvraghav/csvy-gnuplot-latex
 BRANCH    ?= master
 
-PAGES := $(SITE)/index.html $(SITE)/REFERENCE.html \
+PAGES := $(SITE)/index.html $(SITE)/ABOUT.html $(SITE)/REFERENCE.html \
          $(patsubst %.md,$(SITE)/%.html,$(wildcard tutorials/*.md))
 # The committed images are copied, not listed as prerequisites: img/*.png are
 # targets of the rules above, so depending on them could make 'site' re-render
@@ -89,17 +90,21 @@ PAGES := $(SITE)/index.html $(SITE)/REFERENCE.html \
 site: $(PAGES) $(SITE)/site.css
 	mkdir -p $(SITE)/img && cp -p img/*.png $(SITE)/img/
 
-# $(1): source .md; pages in a subfolder reach site.css and the nav via ../
+# $(1): source .md; pages written into a subfolder of the site reach
+# site.css and the nav via ../
 define pandoc_page
 	mkdir -p $(@D)
 	$(PANDOC) $(1) -f gfm -t html5 --standalone --toc --toc-depth=2 \
 	  --syntax-highlighting=none \
 	  --template=site/template.html --lua-filter=site/links.lua \
 	  -M site_name='$(SITE_NAME)' -M repo_url='$(REPO_URL)' -M branch='$(BRANCH)' \
-	  -V root='$(if $(findstring /,$(1)),../,)' -o $@
+	  -V root='$(if $(findstring /,$(patsubst $(SITE)/%,%,$@)),../,)' -o $@
 endef
 
 $(SITE)/index.html: README.md site/template.html site/links.lua
+	$(call pandoc_page,$<)
+
+$(SITE)/ABOUT.html: ../README.md site/template.html site/links.lua
 	$(call pandoc_page,$<)
 
 $(SITE)/%.html: %.md site/template.html site/links.lua

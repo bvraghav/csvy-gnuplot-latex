@@ -2,7 +2,7 @@
 
 Version 0.0.8
 
-**Docs:** [Overview](doc/README.md) ·
+**Docs** ([website](https://bvraghav.github.io/csvy-gnuplot-latex/)): [Overview](doc/README.md) ·
 Tutorials: [101: sizing in LaTeX](doc/tutorials/101.md),
 [sample Gantt chart](doc/tutorials/sample-gantt-chart.md),
 [advanced Gantt chart](doc/tutorials/advanced-gantt-chart.md) ·
