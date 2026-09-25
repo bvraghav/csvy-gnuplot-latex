@@ -1,7 +1,5 @@
 # gnuplot figures for LaTeX from CSVY
 
-Version 0.0.8
-
 **Docs** ([website](https://bvraghav.github.io/csvy-gnuplot-latex/)): [Overview](doc/README.md) ·
 Tutorials: [101: sizing in LaTeX](doc/tutorials/101.md),
 [sample Gantt chart](doc/tutorials/sample-gantt-chart.md),
@@ -88,7 +86,7 @@ can run shell commands. Only build files you trust.
 
 | Committed | Ignored |
 |---|---|
-| sources: `*.csvy`, `templates/`, `inp2gp.py`, `gnuplotfit.sty`, `Makefile`, `*.tex` documents, `test/` (including `test/golden/`), `doc/` (including `doc/img/`) | intermediates `NAME.gp`, `NAME.dat`, `NAME.d`; LaTeX auxiliaries; `test-v6.pdf`; `__pycache__/`; `doc/build/` |
+| sources: `*.csvy`, `templates/`, `inp2gp.py`, `gnuplotfit.sty`, `Makefile`, `*.tex` documents, `test/` (including `test/golden/`), `doc/` (including `doc/img/`) | intermediates `NAME.gp`, `NAME.dat`, `NAME.d`; LaTeX auxiliaries; `example.pdf`; `__pycache__/`; `doc/build/` |
 | **figures: `NAME.gp.tex`** | |
 
 Why the figures are committed:
@@ -149,10 +147,10 @@ the committed figures for the same reason; `make figs` updates them.
 | `.gitignore` | intermediates and LaTeX auxiliaries (see Version control) |
 | `.github/workflows/docs.yml` | builds the docs website and publishes it to GitHub Pages |
 | `project.csvy` | example input |
-| `test-v6.tex` | example document |
+| `example.tex` | example document |
 | `test/` | regression tests: `test_inp2gp.py`, `Makefile`, `cases/`, `golden/` |
 | `doc/` | `README.md` (contents), `REFERENCE.md`, `tutorials/`, their inputs (`examples/`), images (`img/`, committed) and `Makefile` |
-| `VERSION`, `LICENSE` | 0.0.8, MIT |
+| `VERSION`, `LICENSE` | the version number (the only place it is kept, besides the `.sty` headers); the MIT licence |
 
 Generated files (don't edit them): `NAME.gp`, `NAME.dat`, `NAME.d` (all
 ignored), and `NAME.gp.tex` (committed; regenerate it with `make figs`).

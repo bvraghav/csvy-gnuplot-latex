@@ -9,7 +9,7 @@
 /*.d
 
 ## The example document's PDF (the TeX rules below leave *.pdf alone on purpose)
-/test-v6.pdf
+/example.pdf
 
 ## Python
 __pycache__/

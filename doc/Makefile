@@ -80,6 +80,7 @@ SITE      := build/site
 SITE_NAME ?= csvy-gnuplot-latex
 REPO_URL  ?= https://github.com/bvraghav/csvy-gnuplot-latex
 BRANCH    ?= master
+VERSION   := $(shell cat ../VERSION)
 
 PAGES := $(SITE)/index.html $(SITE)/ABOUT.html $(SITE)/REFERENCE.html \
          $(patsubst %.md,$(SITE)/%.html,$(wildcard tutorials/*.md))
@@ -98,16 +99,17 @@ define pandoc_page
 	  --syntax-highlighting=none \
 	  --template=site/template.html --lua-filter=site/links.lua \
 	  -M site_name='$(SITE_NAME)' -M repo_url='$(REPO_URL)' -M branch='$(BRANCH)' \
+	  -M version='$(VERSION)' \
 	  -V root='$(if $(findstring /,$(patsubst $(SITE)/%,%,$@)),../,)' -o $@
 endef
 
-$(SITE)/index.html: README.md site/template.html site/links.lua
+$(SITE)/index.html: README.md site/template.html site/links.lua ../VERSION
 	$(call pandoc_page,$<)
 
-$(SITE)/ABOUT.html: ../README.md site/template.html site/links.lua
+$(SITE)/ABOUT.html: ../README.md site/template.html site/links.lua ../VERSION
 	$(call pandoc_page,$<)
 
-$(SITE)/%.html: %.md site/template.html site/links.lua
+$(SITE)/%.html: %.md site/template.html site/links.lua ../VERSION
 	$(call pandoc_page,$<)
 
 $(SITE)/site.css: site/site.css

@@ -1,6 +1,6 @@
-"""Regression tests for v6: inp2gp.py, templates/gantt.gp, Makefile, gnuplotfit.sty.
+"""Regression tests: inp2gp.py, templates/gantt, Makefile, gnuplotfit.sty.
 
-Every test works in a fresh temporary copy of the v6 sources, so nothing is
+Every test works in a fresh temporary copy of the sources, so nothing is
 written next to them.  Tests that need gnuplot, make or latexmk are skipped
 when the tool is missing.
 
@@ -19,10 +19,10 @@ import unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-V6 = HERE.parent
+ROOT = HERE.parent
 CASES = HERE / "cases"
 GOLDEN = HERE / "golden"
-SOURCES = ["inp2gp.py", "templates", "Makefile", "gnuplotfit.sty", "project.csvy", "test-v6.tex"]
+SOURCES = ["inp2gp.py", "templates", "Makefile", "gnuplotfit.sty", "project.csvy", "example.tex"]
 UPDATE_GOLDEN = os.environ.get("UPDATE_GOLDEN") == "1"
 
 HAVE_GNUPLOT = shutil.which("gnuplot") is not None
@@ -39,10 +39,10 @@ def strip_meta(text):
 
 class Sandbox(unittest.TestCase):
     def setUp(self):
-        self._tmp = tempfile.TemporaryDirectory(prefix="v6test-")
+        self._tmp = tempfile.TemporaryDirectory(prefix="inp2gp-test-")
         self.dir = Path(self._tmp.name)
         for name in SOURCES:
-            src = V6 / name
+            src = ROOT / name
             if src.is_dir():
                 shutil.copytree(src, self.dir / name)
             else:

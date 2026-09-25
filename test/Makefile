@@ -1,4 +1,4 @@
-# Regression tests for v6.  Each test runs in a temporary copy of the sources.
+# Regression tests.  Each test runs in a temporary copy of the sources.
 #
 #   make          run all tests
 #   make golden   refresh golden/ after an intended change (then review the diff)

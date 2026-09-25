@@ -1,7 +1,7 @@
 # Reference
 
-The complete rules for the CSVY → gnuplot → LaTeX pipeline, as of version
-0.0.8. For worked examples with pictures, see the [tutorials](README.md).
+The complete rules for the CSVY → gnuplot → LaTeX pipeline, for the version in
+the repository's `VERSION` file. For worked examples with pictures, see the [tutorials](README.md).
 
 - [Input: `NAME.csvy`](#input-namecsvy)
 - [Generator: `inp2gp.py`](#generator-inp2gppy)
@@ -265,7 +265,7 @@ Works on every `*.csvy` in the top folder (not in subfolders).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `DOC` | `test-v6.tex` | the document `pdf` builds and `watch` watches |
+| `DOC` | `example.tex` | the document `pdf` builds and `watch` watches |
 | `WATCH_TARGET` | `all` | what `watch` runs, e.g. `figs` |
 | `PYTHON`, `GNUPLOT`, `LATEXMK`, `ENTR` | `python3`, `gnuplot`, `latexmk`, `entr` | the tools |
 

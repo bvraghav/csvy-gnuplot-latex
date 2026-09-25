@@ -12,7 +12,7 @@
 INPS := $(wildcard *.csvy)
 FIGS := $(INPS:.csvy=.gp.tex)
 MIDS := $(INPS:.csvy=.gp) $(INPS:.csvy=.dat) $(INPS:.csvy=.d)
-DOC  ?= test-v6.tex
+DOC  ?= example.tex
 
 PYTHON  ?= python3
 GNUPLOT ?= gnuplot
