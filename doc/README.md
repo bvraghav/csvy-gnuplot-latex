@@ -1,7 +1,7 @@
 # Documentation
 
-For the CSVY → gnuplot → LaTeX pipeline described in the
-[top-level README](../README.md).
+[ABOUT (top-level README)](../README.md): For the CSVY → gnuplot → LaTeX pipeline.
+
 
 | | |
 |---|---|
