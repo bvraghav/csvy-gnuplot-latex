@@ -45,6 +45,7 @@ make test       # run the regression tests (see Tests)
 make watch      # rebuild on every save (needs entr); WATCH_TARGET=figs for figures only
 make docs       # render the tutorial images in doc/img/
 make site       # build the docs website into doc/build/site/ (needs pandoc)
+make overleaf   # collect what a LaTeX project without gnuplot needs into overleaf/
 make DOC=paper.tex
 ```
 
@@ -79,6 +80,41 @@ Index,Start,End,Color,Buffer,BufferColor,Label
 
 A `.csvy` file is code: its `gnuplot:` entries run as written, and gnuplot
 can run shell commands. Only build files you trust.
+
+## Using it in your own paper
+
+There are three ways, depending on where the paper lives. The first two need
+only this repository; the third copies it into yours.
+
+**1. Write the paper here.** Put your `.csvy` files in the top folder, add
+your paper (e.g. `paper.tex`), and build with `make DOC=paper.tex`, or
+`make watch DOC=paper.tex` while writing.
+
+**2. Build the figures here, write the paper elsewhere: Overleaf, a
+co-author's machine, a journal template.** The other project needs no gnuplot,
+Python or make, but it does need gnuplot's TikZ style files. Those come with
+gnuplot, not TeX Live, so Overleaf doesn't have them.
+
+```sh
+make overleaf
+```
+
+This fills `overleaf/` with:
+
+| File | What it is |
+|---|---|
+| `gnuplot-lua-tikz.sty`, `gnuplot-lua-tikz-common.tex` | gnuplot's TikZ style files, made by *your* gnuplot, so they match the figures |
+| `gnuplotfit.sty` | `\gnuplotfit` |
+| `NAME.gp.tex` | every figure |
+
+Upload these files next to the paper's main `.tex`. After changing a figure,
+run `make overleaf` again and re-upload its `NAME.gp.tex`. If you upgrade
+gnuplot, re-upload the style files as well.
+
+**3. Copy the pipeline into your own repository.** You need `inp2gp.py`,
+`templates/`, `Makefile` and `gnuplotfit.sty`, plus the `.gitignore` rules at
+its top. Set `DOC` in the Makefile to your paper. This needs everything in
+[Requirements](#requirements).
 
 ## Version control
 

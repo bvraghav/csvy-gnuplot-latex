@@ -17,6 +17,9 @@ __pycache__/
 ## Tutorial build folder (doc/img/*.png are committed)
 /doc/build/
 
+## make overleaf: generated files to upload to a LaTeX project without gnuplot
+/overleaf/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof

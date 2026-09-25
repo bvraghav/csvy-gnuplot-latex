@@ -19,7 +19,7 @@ GNUPLOT ?= gnuplot
 LATEXMK ?= latexmk
 ENTR    ?= entr
 
-.PHONY: all figs pdf check clean distclean test docs site watch
+.PHONY: all figs pdf check clean distclean test docs site watch overleaf
 .DELETE_ON_ERROR:
 
 all: pdf
@@ -72,6 +72,15 @@ docs:
 # Static site from doc/ (pandoc): doc/build/site/, published by .github/workflows/docs.yml.
 site:
 	$(MAKE) -C doc site
+
+# Everything a LaTeX project without gnuplot (e.g. on Overleaf) needs, in
+# overleaf/: gnuplot's TikZ style files (made by this gnuplot, so they match
+# the figures), gnuplotfit.sty and every figure.  Upload the folder's files.
+overleaf: $(FIGS) gnuplotfit.sty
+	mkdir -p overleaf
+	cd overleaf && $(GNUPLOT) -e 'set terminal tikz createstyle' \
+	  && rm -f gnuplot-lua-tikz.tex t-gnuplot-lua-tikz.tex
+	cp gnuplotfit.sty $(FIGS) overleaf/
 
 # Rebuild on every save (needs entr).  entr -d exits with status 2 when a
 # file is added to a watched folder: list the files again and carry on.
